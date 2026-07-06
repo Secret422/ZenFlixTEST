@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenFlix · FR</title>
+    <link rel="icon" href="ZenFlix.png" type="image/png">
+    <link rel="shortcut icon" href="ZenFlix.png" type="image/png">
+    <link rel="apple-touch-icon" href="ZenFlix.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Menu mobile">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="nav-logo">
+                    <h1 onclick="showPage('home')">ZenFlix</h1>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" onclick="showPage('home')">Accueil</a>
+                <a href="#" class="nav-link" onclick="showPage('films')">Films</a>
+                <a href="#" class="nav-link" onclick="showPage('series')">Séries</a>
+                <a href="#" class="nav-link" onclick="showPage('suggestions')">Suggestions</a>
+            </div>
+            <div class="nav-actions">
+                <button class="search-toggle" onclick="toggleSearch()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+                <div id="authSection">
+                    <button class="btn-auth" onclick="openAuthModal()">Se connecter</button>
+                </div>
+            </div>
+        </div>
+        <div class="search-overlay" id="searchOverlay">
+            <div class="search-overlay-content">
+                <input type="text" placeholder="Rechercher sur ZenFlix..." class="search-overlay-input" id="overlaySearchInput">
+                <button class="search-close" onclick="toggleSearch()">✕</button>
+            </div>
+        </div>
+
+        <!-- Drawer Mobile (3 barres) -->
+        <div class="mobile-nav-backdrop" id="mobileNavBackdrop" onclick="toggleMobileMenu()"></div>
+        <aside class="mobile-nav-drawer" id="mobileNavDrawer">
+            <div class="mobile-drawer-header">
+                <span class="mobile-drawer-logo">ZenFlix</span>
+                <button class="mobile-drawer-close" onclick="toggleMobileMenu()" aria-label="Fermer">✕</button>
+            </div>
+            <div class="mobile-drawer-links">
+                <a href="#" class="mobile-nav-link active" onclick="showPage('home'); toggleMobileMenu(); return false;"><i class="fas fa-home"></i> Accueil</a>
+                <a href="#" class="mobile-nav-link" onclick="showPage('films'); toggleMobileMenu(); return false;"><i class="fas fa-film"></i> Films</a>
+                <a href="#" class="mobile-nav-link" onclick="showPage('series'); toggleMobileMenu(); return false;"><i class="fas fa-tv"></i> Séries</a>
+                <a href="#" class="mobile-nav-link" onclick="showPage('suggestions'); toggleMobileMenu(); return false;"><i class="fas fa-lightbulb"></i> Suggestions</a>
+            </div>
+            <div class="mobile-drawer-footer">
+                <p style="color:var(--accent);font-weight:700;"><i class="fas fa-mobile-alt"></i> Expérience Optimisée Mobile</p>
+            </div>
+        </aside>
+    </nav>
+
+    <!-- Modal Auth -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Connexion</h2>
+                <button class="close-modal" onclick="closeAuthModal()">✕</button>
+            </div>
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchAuthTab('login')">Connexion</button>
+                <button class="tab-btn" onclick="switchAuthTab('register')">Inscription</button>
+            </div>
+            <form id="authForm" class="auth-form">
+                <div class="form-group" id="emailGroup" style="display:none;">
+                    <label for="authEmail">Adresse email</label>
+                    <input type="email" id="authEmail" placeholder="ton.email@exemple.com">
+                </div>
+                <div class="form-group">
+                    <label for="authUsername">Nom d'utilisateur</label>
+                    <input type="text" id="authUsername" required placeholder="Votre pseudo">
+                </div>
+                <div class="form-group">
+                    <label for="authPassword">Mot de passe</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="submit-btn auth-submit-btn" id="authSubmitBtn">Se connecter</button>
+            </form>
+            <div style="text-align:center;margin-top:1rem;">
+                <a href="#" onclick="showForgotPassword();return false;" style="color:var(--accent);font-size:0.85rem;text-decoration:none;">Mot de passe oublié ?</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Mot de passe oublié -->
+    <div id="forgotModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mot de passe oublié</h2>
+                <button class="close-modal" onclick="closeForgotModal()">✕</button>
+            </div>
+            <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem;">Entrez l'email associé à votre compte. Un lien de réinitialisation sera envoyé.</p>
+            <form id="forgotForm" class="auth-form">
+                <div class="form-group">
+                    <label for="forgotEmail">Adresse email</label>
+                    <input type="email" id="forgotEmail" required placeholder="ton.email@exemple.com">
+                </div>
+                <button type="submit" class="submit-btn" id="forgotSubmitBtn">Envoyer le lien</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Mon Compte -->
+    <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mon Compte</h2>
+                <button class="close-modal" onclick="closeAccountModal()">✕</button>
+            </div>
+            <div class="account-info">
+                <div class="account-field">
+                    <label>Email</label>
+                    <input type="email" id="accountEmail" placeholder="Ton email" readonly style="opacity:0.7;">
+                </div>
+                <div class="account-field">
+                    <label>Pseudo actuel</label>
+                    <input type="text" id="accountUsername" placeholder="Nouveau pseudo (optionnel)">
+                </div>
+                <div class="account-field">
+                    <label>Nouveau mot de passe</label>
+                    <input type="password" id="accountPassword" placeholder="Nouveau mot de passe">
+                </div>
+                <div class="account-field">
+                    <label>Confirmer le mot de passe</label>
+                    <input type="password" id="accountPasswordConfirm" placeholder="Confirmer">
+                </div>
+                <div id="accountRole" class="account-role-display"></div>
+                <button class="submit-btn" onclick="saveAccountChanges()">
+                    <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+                <button class="submit-btn danger-btn" onclick="doLogout()" style="margin-top:0.8rem;">
+                    <i class="fas fa-sign-out-alt"></i> Se déconnecter
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ajouter un Film (Admin) -->
+    <div id="addMovieModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle" style="color:var(--accent);margin-right:0.5rem;"></i>Ajouter un Film</h2>
+                <button class="close-modal" onclick="closeAddMovieModal()">✕</button>
+            </div>
+            <form id="addMovieForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Titre *</label>
+                        <input type="text" id="movieTitle" required placeholder="Ex: Inception">
+                    </div>
+                    <div class="form-group">
+                        <label>Année *</label>
+                        <input type="number" id="movieYear" required placeholder="2024" min="1900" max="2030">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Genres * (séparés par des virgules)</label>
+                    <input type="text" id="movieGenres" required placeholder="Action, Aventure, Science-Fiction">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Durée</label>
+                        <input type="text" id="movieDuration" placeholder="120 min">
+                    </div>
+                    <div class="form-group">
+                        <label>Langue</label>
+                        <select id="movieLanguage">
+                            <option value="MULTI">MULTI</option>
+                            <option value="VOSTFR">VOSTFR</option>
+                            <option value="VF">VF</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Qualité</label>
+                        <input type="text" id="movieQuality" placeholder="HDLight 1080p (x265)" value="HDLight 1080p (x265)">
+                    </div>
+                    <div class="form-group">
+                        <label>Taille</label>
+                        <input type="text" id="movieSize" placeholder="3.50 GB">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="movieDescription" required placeholder="Synopsis du film..." rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>URL du Poster</label>
+                        <input type="text" id="moviePoster" placeholder="Ex: MonFilm.jpg ou https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Lien de téléchargement</label>
+                        <input type="text" id="movieLink" placeholder="https://1fichier.com/...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="movieFeatured" style="width:auto;margin-right:0.5rem;"> Mettre en avant (featured)
+                    </label>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-film"></i> Ajouter le film
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div id="homePage" class="page active">
+            <div id="homeContent"></div>
+        </div>
+
+        <div id="filmsPage" class="page">
+            <div class="content-section" style="padding-top: 8rem;">
+                <div class="section-container">
+                    <div id="adminAddFilmBtn" style="margin-bottom:2rem;display:none;">
+                        <button class="add-film-btn" onclick="openAddMovieModal()">
+                            <i class="fas fa-plus"></i> Ajouter un film
+                        </button>
+                    </div>
+                    <div class="search-section">
+                        <h2 class="section-title">Rechercher un film</h2>
+                        <div class="search-box-large">
+                            <input type="text" id="filmsSearchInput" placeholder="Tapez le nom d'un film..." class="search-input-large">
+                            <button onclick="searchFilm()" class="search-btn-large">Rechercher</button>
+                        </div>
+                        <div class="filters-bar">
+                            <span class="filter-label">Filtres:</span>
+                            <button class="filter-btn active" onclick="filterFilms('all', event)">Tous</button>
+                            <button class="filter-btn" onclick="filterFilms('VOSTFR', event)">VOSTFR</button>
+                            <button class="filter-btn" onclick="filterFilms('MULTI', event)">MULTI</button>
+                            <button class="filter-btn" onclick="filterFilms('1080p', event)">1080p</button>
+                        </div>
+                    </div>
+                    <div id="filmsResults" class="films-results"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="filmDetailPage" class="page">
+            <div class="section-container" style="padding-top: 8rem;">
+                <div class="film-detail-container">
+                    <button class="back-btn" onclick="goBack()">← Retour</button>
+                    <div id="filmDetailContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="seriesPage" class="page">
+            <div class="content-section" style="padding-top: 8rem;">
+                <div class="section-container">
+                    <div class="search-section">
+                        <h2 class="section-title">Rechercher une série</h2>
+                        <div class="search-box-large">
+                            <input type="text" id="seriesSearchInput" placeholder="Tapez le nom d'une série..." class="search-input-large">
+                            <button onclick="searchSerie()" class="search-btn-large">Rechercher</button>
+                        </div>
+                        <div class="filters-bar">
+                            <span class="filter-label">Filtres:</span>
+                            <button class="filter-btn active" onclick="filterSeries('all', event)">Toutes</button>
+                            <button class="filter-btn" onclick="filterSeries('VOSTFR', event)">VOSTFR</button>
+                            <button class="filter-btn" onclick="filterSeries('MULTI', event)">MULTI</button>
+                            <button class="filter-btn" onclick="filterSeries('1080p', event)">1080p / 4K</button>
+                        </div>
+                    </div>
+                    <div id="seriesResults" class="films-results"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="suggestionsPage" class="page">
+            <div class="section-container" style="padding-top: 8rem;">
+                <div class="suggestions-container">
+                    <div class="suggestions-header">
+                        <h2 class="suggestions-title">Suggestions</h2>
+                        <p class="suggestions-subtitle">Suggérez vos films et séries préférés pour ZenFlix</p>
+                    </div>
+                    <div class="suggestions-content">
+                        <div class="suggestion-form-container">
+                            <div id="formAuthCheck">
+                                <form class="suggestion-form" id="suggestionForm">
+                                    <div class="form-group">
+                                        <label for="suggestionType">Type</label>
+                                        <select id="suggestionType" name="type" required>
+                                            <option value="">Choisir...</option>
+                                            <option value="film">Film</option>
+                                            <option value="serie">Série</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="suggestionTitle">Titre</label>
+                                        <input type="text" id="suggestionTitle" name="title" placeholder="Ex: Inception, Breaking Bad..." required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="suggestionYear">Année (optionnel)</label>
+                                        <input type="number" id="suggestionYear" name="year" placeholder="Ex: 2010" min="1900" max="2026">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="suggestionGenre">Genre (optionnel)</label>
+                                        <input type="text" id="suggestionGenre" name="genre" placeholder="Ex: Action, Drame...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="suggestionComment">Pourquoi ce choix ? (optionnel)</label>
+                                        <textarea id="suggestionComment" name="comment" placeholder="Dites-nous en plus..." rows="4"></textarea>
+                                    </div>
+                                    <button type="submit" class="submit-btn">
+                                        <span>Envoyer la suggestion</span>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="22" y1="2" x2="11" y2="13"/>
+                                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="suggestions-list-container">
+                            <h3 class="suggestions-list-title">Suggestions récentes</h3>
+                            <div class="suggestions-list" id="suggestionsList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2026 ZenFlix · FR. Tous droits réservés.</p>
+            <p class="footer-disclaimer">Plateforme de streaming communautaire. Développé par un indépendant, veillez me soutenir : (SOON).</p>
+            <p class="footer-author">By DaRtoXxx</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        const sb = createClient(
+            'https://lefqblashcnzvqtbiifd.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlZnFibGFzaGNuenZxdGJpaWZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNTg1OTEsImV4cCI6MjA5ODgzNDU5MX0.9qLIythm4J9i7bLRESTHrfPLvfmzxVQipDKXPJ8Yuo0'
+        );
+        const ADMIN_USERNAMES = ['DaRtoXxx'];
+        console.log('[ZenFlix] ✅ Supabase initialized');
+
+        const defaultMovies = [
+            { id: 1, title: "Obsession", type: "film", year: 2026, genres: ["Horreur", "Thriller", "Fantastique"], poster: "Obsession.webp", backdrop: "ObsessionBack.png", description: "Un jeune introverti met la main sur un objet magique capable d'exaucer n'importe quel souhait. Son coup de foudre de toujours tombe alors raide dingue de lui, mais la situation bascule rapidement jusqu'à l'obsession la plus totale.", duration: "108 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "4.34 GB", link: "https://1fichier.com/?kkwp728e9l62859jk77q&af=5010551", dateAdded: "2026-05-13", featured: true },
+            { id: 2, title: "Michael", type: "film", year: 2026, genres: ["Biopic", "Drame", "Musique"], poster: "Michael.webp", description: "Un portrait détaillé de l'homme complexe qui est devenu le Roi de la Pop. Le film nous fait revivre les performances les plus emblématiques de Michael Jackson tout en donnant un aperçu de sa démarche artistique et de sa vie personnelle.", duration: "127 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "4.20 GB", link: "https://1fichier.com/?8e9jhmdkom6goa6n5u3z&af=5010551", dateAdded: "2026-04-22", featured: true },
+            { id: 3, title: "Interstellar", type: "film", year: 2014, genres: ["Science-Fiction", "Drame", "Aventure"], poster: "Interstellar.jpg", description: "Alors que la Terre se meurt, une équipe d'astronautes traverse un trou de ver récemment découvert afin de trouver une nouvelle planète habitable pour sauver l'humanité.", duration: "169 min", language: "MULTI", quality: "HDLight 1080p", size: "4.94 GB", link: "https://1fichier.com/?h542vuyz7wha46xb5k4y&af=3456997", dateAdded: "2014-11-05", featured: true },
+            { id: 4, title: "Backrooms", type: "film", year: 2026, genres: ["Horreur", "Science-Fiction"], poster: "Backrooms.webp", description: "Une étrange porte apparaît dans le sous-sol d'un magasin de meubles, ouvrant sur un réseau infini de chambres interconnectées et jaunâtres où le temps se courbe et où une entité terrifiante est aux aguets.", duration: "111 min", language: "VOSTFR", quality: "HDLight 1080p (x265)", size: "2.0 GB", link: "https://gofile.io/d/xcGCEm", dateAdded: "2026-06-17", featured: true },
+            { id: 5, title: "Toy Story 5", type: "film", year: 2026, genres: ["Animation", "Aventure", "Comédie", "Famille"], poster: "ToyStory5.webp", description: "Bonnie, désormais âgée de 8 ans, délaisse ses jouets traditionnels pour une tablette tactile. Woody, Buzz l'Éclair et leurs amis vont devoir rivaliser d'ingéniosité pour reconquérir le cœur de leur propriétaire face aux nouvelles technologies.", duration: "100 min", language: "MULTI", quality: "1080p", size: "4.19", link: "https://1fichier.com/?k0r5juxdzrq1p9s4epr8&af=5010551", dateAdded: "2026-06-17", featured: true },
+            { id: 6, title: "Des Minions et des Monstres", type: "film", year: 2026, genres: ["Animation", "Comédie", "Famille"], poster: "MinionsMonstres.jpg", description: "Les Minions sont de nouveau à la recherche d'un génie du mal à servir, mais leur quête va les mener à découvrir un tout nouveau monde... Hollywood, envahi de monstres hauts en couleur !", duration: "95 min", language: "MULTI", quality: "720p", size: "0.75 GB", link: "https://store-eu-par-5.gofile.io/download/web/81ee7154-6944-47e1-9b9b-e01ab85806a6/Minions-Monsters-2026.mp4", dateAdded: "2026-06-24", featured: true },
+            { id: 7, title: "Jumpers", type: "film", year: 2026, genres: ["Animation", "Aventure", "Comédie"], poster: "Jumpers.webp", description: "Mabel, une jeune fille passionnée par les animaux, accepte de tester une invention top secrète : un système qui transfère son esprit dans un castor robot.", duration: "104 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.41 GB", link: "https://1fichier.com/?2u9ay0rb0527524jopoc&af=5010551", dateAdded: "2026-03-04", featured: true },
+            { id: 8, title: "Predator Badlands", type: "film", year: 2025, genres: ["Action", "Science-Fiction", "Thriller"], poster: "PredatorBadlands.png", description: "Dans les badlands d'une planète lointaine, un chasseur Predator redoutable traque sa proie la plus dangereuse à ce jour.", duration: "106 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.51 GB", link: "https://1fichier.com/?xcayhbhr9oljem69yjl9&af=5010551", dateAdded: "2025-11-05", featured: true },
+            { id: 18, title: "Spider-Man", type: "film", year: 2002, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan1.jpg", description: "Après avoir été mordu par une araignée génétiquement modifiée, le jeune Peter Parker développe de super-pouvoirs et choisit de lutter contre le crime sous l'identité de Spider-Man.", duration: "121 min", language: "MULTI", quality: "HDLight 1080p", size: "3.95 GB", link: "https://1fichier.com/?njpbmqk225mr4ibfur3j&af=5010551", dateAdded: "2002-05-03", featured: true },
+            { id: 19, title: "Spider-Man 2", type: "film", year: 2004, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan2.jpg", description: "Peter Parker a du mal à concilier sa vie privée et ses devoirs de super-héros. Il doit pourtant affronter une nouvelle menace redoutable : le redoutable Docteur Octopus.", duration: "127 min", language: "MULTI", quality: "HDLight 1080p", size: "3.99 GB", link: "https://1fichier.com/?20hg9i18gro61mj1gvk0", dateAdded: "2004-06-30", featured: true },
+            { id: 20, title: "Spider-Man 3", type: "film", year: 2007, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan3.jpg", description: "Une mystérieuse matière noire venue de l'espace fusionne avec le costume de Spider-Man, amplifiant ses pouvoirs mais altérant aussi sa personnalité, alors que de nouveaux ennemis surgissent.", duration: "139 min", language: "MULTI", quality: "HDLight 1080p", size: "4.08 GB", link: "https://1fichier.com/?6rkbrus0b2pbqy94k558&af=5010551", dateAdded: "2007-05-04", featured: true },
+            { id: 21, title: "Spider-Man: Homecoming", type: "film", year: 2017, genres: ["Action", "Aventure", "Science-Fiction"], poster: "SpiderManHomecoming.jpg", description: "De retour chez lui après ses aventures avec les Avengers, Peter Parker tente de reprendre sa vie normale sous l'œil attentif de son mentor Tony Stark, mais le Vautour menace la ville.", duration: "133 min", language: "VF", quality: "HDLight 1080p (x265)", size: "2.53 GB", link: "https://1fichier.com/?k1x4nkjbcouxh9ev6tpi&af=5010551", dateAdded: "2017-07-07", featured: true },
+            { id: 22, title: "Spider-Man: Far From Home", type: "film", year: 2019, genres: ["Action", "Aventure", "Science-Fiction"], poster: "SpiderManFarFromHome.jpg", description: "Peter Parker décide de rejoindre ses meilleurs amis pour un voyage d'études en Europe. Mais ses vacances sont écourtées lorsqu'il accepte d'aider Nick Fury à résoudre le mystère de plusieurs attaques de créatures.", duration: "129 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.02 GB", link: "https://1fichier.com/?fyp2prhv2fu2l6abecfd&af=5257374", dateAdded: "2019-07-02", featured: true },
+            { id: 23, title: "Spider-Man: No Way Home", type: "film", year: 2021, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderManNoWayHome.jpg", description: "Pour la première fois, l'identité de Spider-Man est révélée. Peter demande de l'aide au Docteur Strange pour restaurer son secret, mais le sort tourne mal et fracture le multivers.", duration: "148 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.95 GB", link: "https://1fichier.com/?szycv9krkv1e1cbi9ve0&af=5010551", dateAdded: "2021-12-17", featured: true },
+            { id: 9, title: "Aladdin", type: "film", year: 1993, genres: ["Aventure", "Fantastique", "Romance"], poster: "Aladdin.webp", description: "Aladdin, un jeune homme des rues, tombe amoureux de la belle princesse Jasmine. Il découvre une lampe magique contenant un génie.", duration: "90 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.96 GB", link: "https://1fichier.com/?j3vrcva3e8knfssz7t78&af=5010551", dateAdded: "1993-11-24", featured: false },
+            { id: 10, title: "Scary Movie", type: "film", year: 2000, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie.jpg", description: "Drew Becker, la plus belle fille du lycée, est sauvagement assassinée par un tueur masqué. Une bande de six adolescents complètement paumés se rend compte qu'un tueur en série se cache parmi eux et parodie les classiques du genre.", duration: "97 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.27 GB", link: "https://1fichier.com/?05434uvdytajvjku461c&af=4522893", dateAdded: "2000-06-03", featured: true },
+            { id: 25, title: "Scary Movie 2", type: "film", year: 2001, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie2.jpg", description: "Un professeur fou piège Cindy Campbell et sa bande de copains déjantés dans une maison prétendument hantée pour mener une expérience scientifique secrète, donnant lieu à des parodies de films de fantômes.", duration: "83 min", language: "MULTI", quality: "HDLight 1080p", size: "2.63 GB", link: "https://1fichier.com/?4sjhcebrf5qhwfub79lf&af=4522893", dateAdded: "2001-07-25", featured: true },
+            { id: 26, title: "Scary Movie 3", type: "film", year: 2003, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie3.jpg", description: "Cindy Campbell, devenue journaliste, enquête sur une mystérieuse cassette vidéo tueuse et d'étranges crop circles apparus dans une ferme, parodiant ouvertement Le Cercle, Signes et Matrix.", duration: "84 min", language: "MULTI", quality: "HDLight 1080p", size: "2.72 GB", link: "https://1fichier.com/?708lbrp8kwqjacoi9d4m&af=4522893", dateAdded: "2003-12-24", featured: true },
+            { id: 27, title: "Scary Movie 4", type: "film", year: 2006, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie4.jpg", description: "Cindy s'occupe d'une vieille dame dans une maison hantée par un petit garçon, tandis que d'horribles tripodes extraterrestres envahissent la Terre. Une parodie délirante de La Guerre des Mondes et de The Grudge.", duration: "83 min", language: "MULTI", quality: "HDLight 1080p", size: "2.69 GB", link: "https://1fichier.com/?73p6air205is1v1nz3uk&af=4522893", dateAdded: "2006-06-21", featured: true },
+            { id: 28, title: "Scary Movie 5", type: "film", year: 2013, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie5.jpg", description: "Un jeune couple commence à remarquer des activités étranges dans leur maison après y avoir installé les trois enfants sauvages de leur frère. Les sagas Paranormal Activity, Mama et Evil Dead passent à la moulinette.", duration: "88 min", language: "MULTI", quality: "HDLight 1080p", size: "2.58 GB", link: "https://1fichier.com/?eg5f7a3szqoo6s1y6bky&af=5156779", dateAdded: "2013-04-12", featured: true },
+            { id: 29, title: "Scary Movie 6", type: "film", year: 2026, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie6.jpg", description: "Le sixième film de la saga culte revient après 13 ans d'absence pour parodier les récentes propositions horrifiques du cinéma : Scream, M3GAN, Sinners, Get Out, Smile, The Substance et Terrifier n'y échapperont pas !", duration: "97 min", language: "MULTI", quality: "HD 1080p", size: "3.26 GB", link: "https://1fichier.com/?9gh2tib3j84enrst8vdc&af=5010551", dateAdded: "2026-06-03", featured: true },
+            { id: 11, title: "Inception", type: "film", year: 2010, genres: ["Action", "Science-Fiction", "Thriller"], poster: "inception.jpg", description: "Un voleur expérimenté, capable de s'infiltrer dans les rêves des gens pour y dérober leurs secrets, se voit confier une mission ultime : implanter une idée dans l'esprit d'un individu au lieu de la voler.", duration: "148 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.26 GB", link: "https://1fichier.com/?rwcjwnkdbawgau88hdpa&af=4836655", dateAdded: "2010-07-21", featured: true },
+            { id: 12, title: "Titanic", type: "film", year: 1997, genres: ["Drame", "Romance"], poster: "Titanic.jpg", description: "À bord du plus grand paquebot du monde, une jeune femme de la haute société et un artiste pauvre vivent une histoire d'amour passionnée, ignorant le destin tragique qui attend le navire.", duration: "194 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.88 GB", link: "https://1fichier.com/?xjl6nha8oqdmt3evp0dr&af=4836655", dateAdded: "1997-12-19", featured: true },
+            { id: 13, title: "Forrest Gump", type: "film", year: 1994, genres: ["Drame", "Romance", "Comédie"], poster: "ForrestGump.jpg", description: "L'histoire touchante d'un homme simple d'esprit qui traverse les événements les plus marquants de l'histoire des États-Unis de la seconde moitié du XXe siècle, guidé par son grand cœur.", duration: "142 min", language: "MULTI", quality: "HDLight 1080p", size: "4.15 GB", link: "https://1fichier.com/?kjrz5xdtciwcfvjmkxah&af=4836655", dateAdded: "1994-10-05", featured: true },
+            { id: 14, title: "Fast and Furious", type: "film", year: 2001, genres: ["Action", "Policier", "Thriller"], poster: "FastAndFurious.jpg", description: "Un flic infiltré intègre le milieu des courses de voitures clandestines à Los Angeles pour enquêter sur des détournements de camions, mais se lie d'amitié avec le chef de bande.", duration: "106 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.49 GB", link: "https://1fichier.com/?dkpg19jojlqstcs8asn1&af=5010551", dateAdded: "2001-06-22", featured: true },
+            { id: 15, title: "Mamma Mia!", type: "film", year: 2008, genres: ["Comédie", "Musical", "Romance"], poster: "MammaMia.jpg", description: "Sur une île grecque paradisiaque, une future mariée invite secrètement trois anciens amants de sa mère dans l'espoir de découvrir lequel d'entre eux est son véritable père.", duration: "108 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.5 GB", link: "https://1fichier.com/?tunopu0rrxft93uv4iry&af=3394061", dateAdded: "2008-07-10", featured: true },
+            { id: 16, title: "La 5ème Vague", type: "film", year: 2016, genres: ["Science-Fiction", "Action", "Aventure"], poster: "La5emeVague.jpg", description: "Quatre vagues d'attaques extraterrestres de plus en plus mortelles ont décimé la majeure partie de la Terre. À l'aube de la 5ème vague, une adolescente tente désespérément de sauver son jeune frère.", duration: "112 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.50 GB", link: "https://1fichier.com/?zvwfzxtjncosovrtd3sb&af=5010551", dateAdded: "2016-01-27", featured: true },
+            { id: 17, title: "Shining", type: "film", year: 1980, genres: ["Horreur", "Drame", "Thriller"], poster: "shining.webp", description: "Jack Torrance accepte un emploi de gardien d'hôtel isolé durant l'hiver, accompagné de sa femme et de son fils télépathe. Peu à peu, l'endroit maudit va le pousser vers la folie et la violence.", duration: "150 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "7.44 GB", link: "https://1fichier.com/?a01ls1oe2s6472oigc6z&af=4836655", dateAdded: "1980-05-23", featured: false },
+            { id: 30, title: "Arcane (Saison 2)", type: "serie", year: 2024, genres: ["Animation", "Action", "Science-Fiction"], poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/fqldf2t8ztc9aiwn3k6mlX3tvjU.jpg", description: "Au milieu du conflit entre les villes jumelles de Piltover et Zaun, deux sœurs se battent dans des camps opposés d'une guerre entre technologies magiques et convictions incompatibles.", duration: "9 épisodes", language: "MULTI", quality: "Ultra HDLight 4K", size: "12.4 GB", link: "#", dateAdded: "2024-11-09", featured: true },
+            { id: 31, title: "Stranger Things (Saison 5)", type: "serie", year: 2026, genres: ["Horreur", "Fantastique", "Drame"], poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/49WJfeN0moxb9IPfGn8AIqMGskD.jpg", description: "Le chapitre final épique à Hawkins. Alors que le Monde à l'envers s'infiltre dans la réalité, Onze et sa bande doivent mener l'ultime bataille contre Vecna pour sauver leur ville et le monde.", duration: "8 épisodes", language: "MULTI", quality: "1080p (x265)", size: "15.2 GB", link: "#", dateAdded: "2026-06-01", featured: true },
+            { id: 32, title: "The Last of Us (Saison 2)", type: "serie", year: 2025, genres: ["Action", "Horreur", "Drame"], poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg", description: "Cinq ans après leur voyage dangereux à travers les États-Unis ravagés par l'épidémie, Ellie et Joel se sont installés à Jackson. Mais un événement violent vient bouleverser leur paix et lance Ellie dans une quête implacable.", duration: "7 épisodes", language: "MULTI", quality: "HDLight 1080p", size: "10.8 GB", link: "#", dateAdded: "2025-04-15", featured: true },
+            { id: 33, title: "Solo Leveling (Saison 2)", type: "serie", year: 2025, genres: ["Animation", "Action", "Fantastique"], poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/geLz3wI1Goxe8u9R5G0mivVz6bV.jpg", description: "Sung Jinwoo, devenu le Monarque des Ombres, continue son ascension irrésistible. Confronté à des donjons de rang S et aux complots des guildes internationales, il déploie son armée d'ombres pour protéger ce qui lui est cher.", duration: "13 épisodes", language: "VOSTFR", quality: "1080p", size: "6.5 GB", link: "#", dateAdded: "2025-01-10", featured: true },
+            { id: 34, title: "Squid Game (Saison 2)", type: "serie", year: 2024, genres: ["Thriller", "Drame", "Action"], poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg", description: "Trois ans après avoir remporté le jeu mortel, Seong Gi-hun renonce à partir aux États-Unis et revient avec une nouvelle détermination : infiltrer et détruire la mystérieuse organisation derrière le Squid Game.", duration: "7 épisodes", language: "MULTI", quality: "Ultra HDLight", size: "9.8 GB", link: "#", dateAdded: "2024-12-26", featured: true },
+            { id: 35, title: "Breaking Bad", type: "serie", year: 2008, genres: ["Policier", "Drame", "Thriller"], poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/ggFHVNu6YYI5L9pBaOETuWMbE5x.jpg", description: "Un professeur de chimie de lycée atteint d'un cancer en phase terminale s'associe à un ancien élève pour fabriquer et vendre de la méthamphétamine afin d'assurer l'avenir financier de sa famille.", duration: "5 saisons", language: "MULTI", quality: "HDLight 1080p", size: "35.0 GB", link: "#", dateAdded: "2008-01-20", featured: true }
+        ];
+
+        const MOVIES_VERSION = '2026-07-06-v4';
+        let moviesData;
+        if (localStorage.getItem('zenflix_movies_version') !== MOVIES_VERSION) {
+            moviesData = defaultMovies;
+            localStorage.setItem('zenflix_movies', JSON.stringify(moviesData));
+            localStorage.setItem('zenflix_movies_version', MOVIES_VERSION);
+        } else {
+            moviesData = JSON.parse(localStorage.getItem('zenflix_movies')) || defaultMovies;
+        }
+        let currentUser = null;
+        let currentAuthTab = 'login';
+
+        let suggestionsData = [];
+
+        // Badge admin HTML
+        const adminBadge = '<span style="background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;font-size:0.65rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:12px;margin-left:0.5rem;letter-spacing:0.5px;box-shadow:0 0 8px rgba(255,215,0,0.5);text-transform:uppercase;"><i class="fas fa-crown" style="margin-right:0.3rem;font-size:0.6rem;"></i>ADMIN</span>';
+        const adminBadgeLarge = '<div style="background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;font-size:0.75rem;font-weight:800;padding:0.3rem 0.8rem;border-radius:12px;display:inline-flex;align-items:center;gap:0.4rem;box-shadow:0 0 12px rgba(255,215,0,0.6);text-transform:uppercase;letter-spacing:1px;"><i class="fas fa-crown"></i>ADMINISTRATEUR</div>';
+
+        // ===== VALIDATION EMAIL =====
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // ===== AUTH =====
+        async function handleAuth(e) {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value.trim();
+            const pass = document.getElementById('authPassword').value;
+
+            if (currentAuthTab === 'register') {
+                const email = document.getElementById('authEmail').value.trim();
+                if (!email) { alert("L'email est obligatoire pour l'inscription."); return; }
+                if (!isValidEmail(email)) { alert("Email invalide."); return; }
+                if (username.length < 2) { alert("Pseudo trop court (min 2 caractères)."); return; }
+                if (pass.length < 3) { alert("Mot de passe trop court (min 3 caractères)."); return; }
+
+                try {
+                    const { data, error } = await sb.auth.signUp({
+                        email: email,
+                        password: pass,
+                        options: { data: { username } }
+                    });
+
+                    if (error) { alert("❌ " + error.message); return; }
+
+                    if (data.user) {
+                        const isAdmin = ADMIN_USERNAMES.includes(username);
+                        await sb.from('profiles').upsert([{ id: data.user.id, username, email, is_admin: isAdmin }]);
+
+                        if (data.session) {
+                            currentUser = { id: data.user.id, username, email, isAdmin };
+                            localStorage.setItem('zenflix_session', JSON.stringify(currentUser));
+                            alert("✅ Compte créé ! Bienvenue " + username + (isAdmin ? " ★" : ""));
+                            closeAuthModal();
+                            updateAuthUI();
+                        } else {
+                            alert("✅ Compte créé ! Vérifie ton email pour confirmer, puis connecte-toi.");
+                            switchAuthTab('login');
+                        }
+                    }
+                } catch (err) { alert("❌ " + err.message); }
+
+            } else {
+                try {
+                    const { data: profData, error: profError } = await sb.from('profiles').select('email, id').eq('username', username).limit(1);
+                    if (profError || !profData || profData.length === 0) { alert("❌ Utilisateur non trouvé."); return; }
+
+                    const { data, error } = await sb.auth.signInWithPassword({ email: profData[0].email, password: pass });
+                    if (error) { alert("❌ " + error.message); return; }
+
+                    if (data.user) {
+                        const { data: prof } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+                        currentUser = prof
+                            ? { id: prof.id, username: prof.username, email: prof.email, isAdmin: prof.is_admin || false }
+                            : { id: data.user.id, username, email: profData[0].email, isAdmin: false };
+                        localStorage.setItem('zenflix_session', JSON.stringify(currentUser));
+                        alert("✅ Connecté ! Bienvenue " + currentUser.username + (currentUser.isAdmin ? " ★" : ""));
+                        closeAuthModal();
+                        updateAuthUI();
+                    }
+                } catch (err) { alert("❌ " + err.message); }
+            }
+        }
+
+        // ===== MOT DE PASSE OUBLIÉ =====
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim();
+            if (!email || !isValidEmail(email)) { alert("Email invalide."); return; }
+
+            const btn = document.getElementById('forgotSubmitBtn');
+            btn.textContent = 'Envoi en cours...';
+            btn.disabled = true;
+
+            const { error } = await sb.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin
+            });
+
+            btn.textContent = 'Envoyer le lien';
+            btn.disabled = false;
+
+            if (error) { alert("❌ " + error.message); return; }
+            alert("✅ Lien de réinitialisation envoyé à " + email + ". Vérifie ta boîte mail !");
+            closeForgotModal();
+        }
+
+        function showForgotPassword() { closeAuthModal(); document.getElementById('forgotModal').classList.add('active'); }
+        function closeForgotModal() { document.getElementById('forgotModal').classList.remove('active'); document.getElementById('forgotForm').reset(); }
+
+        async function doLogout() {
+            await sb.auth.signOut();
+            currentUser = null;
+            localStorage.removeItem('zenflix_session');
+            updateAuthUI();
+            closeAccountModal();
+        }
+
+        async function checkSession() {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session?.user) {
+                const { data: prof } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+                if (prof) {
+                    currentUser = { id: prof.id, username: prof.username, email: prof.email, isAdmin: prof.is_admin || false };
+                    localStorage.setItem('zenflix_session', JSON.stringify(currentUser));
+                }
+            } else {
+                const saved = JSON.parse(localStorage.getItem('zenflix_session'));
+                if (saved) currentUser = saved;
+            }
+            updateAuthUI();
+        }
+
+        // ===== MODALS =====
+        function openAuthModal() { document.getElementById('authModal').classList.add('active'); switchAuthTab('login'); }
+        function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); document.getElementById('authForm').reset(); switchAuthTab('login'); }
+
+        function switchAuthTab(tab) {
+            currentAuthTab = tab;
+            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register')));
+            document.getElementById('modalTitle').textContent = tab === 'login' ? 'Connexion' : 'Inscription';
+            document.getElementById('authSubmitBtn').textContent = tab === 'login' ? 'Se connecter' : "S'inscrire";
+            document.getElementById('emailGroup').style.display = tab === 'register' ? 'flex' : 'none';
+            document.getElementById('authEmail').required = tab === 'register';
+        }
+
+        function openAccountModal() {
+            if (!currentUser) return;
+            document.getElementById('accountEmail').value = currentUser.email || '';
+            document.getElementById('accountUsername').value = currentUser.username;
+            document.getElementById('accountPassword').value = '';
+            document.getElementById('accountPasswordConfirm').value = '';
+            document.getElementById('accountRole').innerHTML = currentUser.isAdmin
+                ? '<div style="display:flex;align-items:center;justify-content:center;gap:0.6rem;"><i class="fas fa-crown" style="color:gold;font-size:1.2rem;"></i><span style="color:gold;font-weight:800;font-size:1rem;">ADMINISTRATEUR</span></div>'
+                : '<i class="fas fa-user" style="margin-right:0.4rem;"></i> Utilisateur';
+            document.getElementById('accountModal').classList.add('active');
+        }
+        function closeAccountModal() { document.getElementById('accountModal').classList.remove('active'); }
+
+        async function saveAccountChanges() {
+            const newUsername = document.getElementById('accountUsername').value.trim();
+            const newPass = document.getElementById('accountPassword').value;
+            const confirmPass = document.getElementById('accountPasswordConfirm').value;
+            if (!newUsername || newUsername.length < 2) { alert("Pseudo trop court."); return; }
+            if (newPass && newPass !== confirmPass) { alert("Mots de passe différents."); return; }
+            const { data: existing } = await sb.from('profiles').select('id').eq('username', newUsername).neq('id', currentUser.id).limit(1);
+            if (existing && existing.length > 0) { alert("Pseudo déjà pris !"); return; }
+            await sb.from('profiles').update({ username: newUsername }).eq('id', currentUser.id);
+            if (newPass && newPass.length >= 3) await sb.auth.updateUser({ password: newPass });
+            currentUser.username = newUsername;
+            localStorage.setItem('zenflix_session', JSON.stringify(currentUser));
+            await sb.from('suggestions').update({ author: newUsername }).eq('author_id', currentUser.id);
+            alert("✅ Modifié !");
+            closeAccountModal();
+            updateAuthUI();
+        }
+
+        function openAddMovieModal() {
+            if (!currentUser?.isAdmin) { alert("Admin seulement."); return; }
+            document.getElementById('addMovieForm').reset();
+            document.getElementById('movieQuality').value = 'HDLight 1080p (x265)';
+            document.getElementById('addMovieModal').classList.add('active');
+        }
+        function closeAddMovieModal() { document.getElementById('addMovieModal').classList.remove('active'); }
+        function deleteMovie(id) {
+            if (!currentUser?.isAdmin) return;
+            const m = moviesData.find(x => x.id === id);
+            if (m && confirm('Supprimer "' + m.title + '" ?')) { moviesData = moviesData.filter(x => x.id !== id); localStorage.setItem('zenflix_movies', JSON.stringify(moviesData)); displayMoviesList(); }
+        }
+
+        // ===== UI =====
+        function updateAuthUI() {
+            const authSection = document.getElementById('authSection');
+            const formCheck = document.getElementById('formAuthCheck');
+            const adminBtn = document.getElementById('adminAddFilmBtn');
+
+            if (currentUser) {
+                // Navbar avec badge admin si applicable
+                if (authSection) {
+                    const crownIcon = currentUser.isAdmin ? '<i class="fas fa-crown" style="color:gold;margin-right:0.3rem;font-size:0.8rem;"></i>' : '';
+                    authSection.innerHTML = '<div class="user-profile">' +
+                        '<span class="username-display" onclick="openAccountModal()" title="Mon compte">' +
+                        crownIcon +
+                        esc(currentUser.username) +
+                        (currentUser.isAdmin ? ' <span style="background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;font-size:0.55rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.4rem;box-shadow:0 0 6px rgba(255,215,0,0.4);vertical-align:middle;">★ADMIN</span>' : '') +
+                        '</span>' +
+                        '<button class="logout-btn" onclick="doLogout()">Déconnexion</button></div>';
+                }
+
+                if (adminBtn) adminBtn.style.display = currentUser.isAdmin ? 'block' : 'none';
+
+                // Formulaire de suggestion avec bandeau admin
+                if (formCheck) {
+                    let formHTML = '';
+                    if (currentUser.isAdmin) {
+                        formHTML += '<div style="background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,140,0,0.1));border:1px solid rgba(255,215,0,0.3);border-radius:8px;padding:1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.8rem;">' +
+                            '<i class="fas fa-crown" style="color:gold;font-size:1.5rem;"></i>' +
+                            '<div><strong style="color:gold;">Suggestion Admin</strong><br><small style="color:var(--text-secondary);">Votre suggestion sera prioritaire</small></div></div>';
+                    }
+                    formHTML += '<form class="suggestion-form" id="suggestionForm"><div class="form-group"><label>Type</label><select id="suggestionType" name="type" required><option value="film">Film</option><option value="serie">Série</option></select></div><div class="form-group"><label>Titre</label><input type="text" id="suggestionTitle" name="title" required placeholder="Titre"></div><div class="form-group"><label>Année (optionnel)</label><input type="number" id="suggestionYear" name="year" placeholder="Ex: 2010" min="1900" max="2030"></div><div class="form-group"><label>Genre (optionnel)</label><input type="text" id="suggestionGenre" name="genre" placeholder="Ex: Action, Drame..."></div><div class="form-group"><label>Commentaire (optionnel)</label><textarea id="suggestionComment" name="comment" placeholder="Dites-nous en plus..." rows="4"></textarea></div><button type="submit" class="submit-btn">Envoyer la suggestion</button></form>';
+                    formCheck.innerHTML = formHTML;
+                    attachFormEvent();
+                }
+            } else {
+                if (authSection) authSection.innerHTML = '<button class="btn-auth" onclick="openAuthModal()">Se connecter</button>';
+                if (adminBtn) adminBtn.style.display = 'none';
+                if (formCheck) formCheck.innerHTML = '<div class="auth-notice"><p><i class="fas fa-lock" style="color:var(--accent);margin-right:0.5rem;"></i>Connecte-toi pour suggérer.</p><button onclick="openAuthModal()">Se connecter</button></div>';
+            }
+            displaySuggestions();
+        }
+
+        function renderFilmCard(m) {
+            const del = currentUser?.isAdmin ? '<button class="film-delete-btn" onclick="event.stopPropagation();deleteMovie(' + m.id + ')" title="Supprimer"><i class="fas fa-trash"></i></button>' : '';
+            const genres = (m.genres || []).slice(0, 3).map(g => '<span class="film-card-genre">' + esc(g) + '</span>').join('');
+            const typeBadge = m.type === 'serie' ? '<span class="content-type-badge serie">Série</span>' : '<span class="content-type-badge">Film</span>';
+            return '<div class="film-card" onclick="showFilmDetail(' + m.id + ')">' +
+                del +
+                typeBadge +
+                '<div class="film-card-poster-wrap">' +
+                '<img src="' + m.poster + '" alt="' + esc(m.title) + '" class="film-card-poster" loading="lazy" onerror="this.onerror=null;this.src=\'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22450%22%3E%3Crect width=%22300%22 height=%22450%22 fill=%22%231a1a1a%22/%3E%3C/svg%3E\';">' +
+                '<span class="film-card-year-badge">' + m.year + '</span>' +
+                '</div>' +
+                '<div class="film-card-info">' +
+                '<h3 class="film-card-title">' + esc(m.title) + '</h3>' +
+                '<div class="film-card-meta"><span><i class="far fa-clock"></i> ' + esc(m.duration) + '</span><span><i class="fas fa-video"></i> ' + esc(m.quality) + '</span></div>' +
+                '<div class="film-card-genres">' + genres + '</div>' +
+                '<button class="film-card-btn" onclick="event.stopPropagation();showFilmDetail(' + m.id + ')">Voir ' + (m.type === 'serie' ? 'la série' : 'le film') + '</button>' +
+                '</div></div>';
+        }
+
+        function renderCarouselCard(m, rank = null) {
+            const del = currentUser?.isAdmin ? '<button class="film-delete-btn" onclick="event.stopPropagation();deleteMovie(' + m.id + ')" title="Supprimer"><i class="fas fa-trash"></i></button>' : '';
+            const genres = (m.genres || []).slice(0, 2).map(g => '<span class="film-card-genre">' + esc(g) + '</span>').join('');
+            const typeBadge = m.type === 'serie' ? '<span class="content-type-badge serie">Série</span>' : '<span class="content-type-badge">Film</span>';
+            const rankBadge = rank ? '<div class="top10-badge">#' + rank + '</div>' : '';
+            return '<div class="carousel-item">' +
+                '<div class="film-card" onclick="handleCardClick(' + m.id + ', event)">' +
+                del +
+                typeBadge +
+                rankBadge +
+                '<div class="film-card-poster-wrap">' +
+                '<img src="' + m.poster + '" alt="' + esc(m.title) + '" class="film-card-poster" loading="lazy" onerror="this.onerror=null;this.style.background=\'#1a1a1a\';">' +
+                '<span class="film-card-year-badge">' + m.year + '</span>' +
+                '</div>' +
+                '<div class="film-card-info">' +
+                '<h3 class="film-card-title">' + esc(m.title) + '</h3>' +
+                '<div class="film-card-meta"><span><i class="far fa-clock"></i> ' + esc(m.duration) + '</span><span><i class="fas fa-video"></i> ' + esc(m.quality) + '</span></div>' +
+                '<div class="film-card-genres">' + genres + '</div>' +
+                '<button class="film-card-btn" onclick="event.stopPropagation();showFilmDetail(' + m.id + ')">Voir ' + (m.type === 'serie' ? 'la série' : 'le film') + '</button>' +
+                '</div></div></div>';
+        }
+
+        function renderHomePage() {
+            const el = document.getElementById('homeContent');
+            if (!el) return;
+
+            // Hero featured movie (Obsession ID 1 or first featured)
+            const hero = moviesData.find(m => m.id === 1) || moviesData[0];
+            const heroHTML = hero ? `
+            <div class="home-hero">
+                <div class="hero-backdrop">
+                    <img src="${hero.id === 1 ? 'ObsessionBack.png' : (hero.backdrop || hero.poster)}" alt="${esc(hero.title)}" class="hero-bg-img" onerror="this.src='${hero.poster}'">
+                    <div class="hero-overlay"></div>
+                </div>
+                <div class="hero-content">
+                    <div class="hero-badge"><i class="fas fa-fire"></i> NOUVEAUTÉ TENDANCE 2026</div>
+                    <h1 class="hero-title">${esc(hero.title)}</h1>
+                    <div class="hero-meta">
+                        <span class="meta-tag match">99% de compatibilité</span>
+                        <span class="meta-tag year">${hero.year}</span>
+                        <span class="meta-tag quality">${esc(hero.quality)}</span>
+                        <span class="meta-tag duration">${esc(hero.duration)}</span>
+                    </div>
+                    <p class="hero-synopsis">${esc(hero.description)}</p>
+                    <div class="hero-genres">
+                        ${(hero.genres || []).map(g => `<span class="hero-genre">${esc(g)}</span>`).join('')}
+                    </div>
+                    <div class="hero-actions">
+                        <button class="hero-btn primary" onclick="showFilmDetail(${hero.id})">
+                            <i class="fas fa-play"></i> Regarder maintenant
+                        </button>
+                        <button class="hero-btn secondary" onclick="showFilmDetail(${hero.id})">
+                            <i class="fas fa-info-circle"></i> Plus d'infos
+                        </button>
+                    </div>
+                </div>
+            </div>` : '';
+
+            // Categories definition
+            const top10List = [
+                ...moviesData.filter(m => [1, 30, 8, 31, 29, 5, 2, 33, 3, 34].includes(m.id)),
+                ...moviesData
+            ].filter((v, i, a) => a.findIndex(t => t.id === v.id) === i).slice(0, 10);
+
+            const categories = [
+                { title: "Top 10 du moment", icon: '<i class="fas fa-fire category-icon"></i>', items: top10List, isTop10: true },
+                { title: "Nouveautés 2026", icon: '<i class="fas fa-bolt category-icon"></i>', items: moviesData.filter(m => m.year >= 2025) },
+                { title: "Séries Incontournables", icon: '<i class="fas fa-tv category-icon"></i>', items: moviesData.filter(m => m.type === 'serie') },
+                { title: "Comédie & Humour", icon: '<i class="fas fa-laugh-beam category-icon"></i>', items: moviesData.filter(m => (m.genres || []).some(g => g.includes("Comédie") || g.includes("Parodie") || g.includes("Humour"))) },
+                { title: "Animation & Famille", icon: '<i class="fas fa-film category-icon"></i>', items: moviesData.filter(m => (m.genres || []).some(g => g.includes("Animation") || g.includes("Famille"))) },
+                { title: "Action & Aventure", icon: '<i class="fas fa-compass category-icon"></i>', items: moviesData.filter(m => (m.genres || []).some(g => g.includes("Action") || g.includes("Aventure"))) },
+                { title: "Horreur, Sci-Fi & Thriller", icon: '<i class="fas fa-ghost category-icon"></i>', items: moviesData.filter(m => (m.genres || []).some(g => g.includes("Horreur") || g.includes("Science-Fiction") || g.includes("Thriller"))) }
+            ];
+
+            const categoriesHTML = categories.filter(c => c.items.length > 0).map(c => `
+            <div class="category-row">
+                <div class="category-header">
+                    <h2 class="category-title"><span>${c.icon}</span> ${c.title}</h2>
+                    <span class="category-count">${c.items.length} titres</span>
+                </div>
+                <div class="carousel-wrapper">
+                    <button class="carousel-nav prev" onclick="scrollTrack(this, -1)" title="Défiler à gauche" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
+                    <div class="carousel-track">
+                        ${c.items.map((m, idx) => renderCarouselCard(m, c.isTop10 ? idx + 1 : null)).join('')}
+                    </div>
+                    <button class="carousel-nav next" onclick="scrollTrack(this, 1)" title="Défiler à droite" aria-label="Suivant"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>`).join('');
+
+            el.innerHTML = heroHTML + '<div class="home-categories">' + categoriesHTML + '</div>';
+            setupCarouselDrag();
+        }
+
+        window.scrollTrack = function(btn, dir) {
+            const wrapper = btn.closest('.carousel-wrapper');
+            const track = wrapper?.querySelector('.carousel-track');
+            if (track) {
+                const scrollAmount = track.clientWidth * 0.78;
+                track.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+            }
+        };
+
+        let _isDraggingCarousel = false;
+        function setupCarouselDrag() {
+            document.querySelectorAll('.carousel-track').forEach(track => {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+
+                track.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    _isDraggingCarousel = false;
+                    track.classList.add('active-drag');
+                    startX = e.pageX - track.offsetLeft;
+                    scrollLeft = track.scrollLeft;
+                });
+                track.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    track.classList.remove('active-drag');
+                });
+                track.addEventListener('mouseup', () => {
+                    isDown = false;
+                    track.classList.remove('active-drag');
+                    setTimeout(() => { _isDraggingCarousel = false; }, 60);
+                });
+                track.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - track.offsetLeft;
+                    if (Math.abs(x - startX) > 6) {
+                        _isDraggingCarousel = true;
+                    }
+                    const walk = (x - startX) * 1.6;
+                    track.scrollLeft = scrollLeft - walk;
+                });
+            });
+        }
+
+        window.handleCardClick = function(id, e) {
+            if (_isDraggingCarousel) return;
+            showFilmDetail(id);
+        };
+
+        function displayMoviesList() {
+            const el = document.getElementById('filmsResults');
+            if (!el) return;
+            const films = moviesData.filter(m => m.type !== 'serie');
+            if (films.length === 0) { el.innerHTML = '<p class="no-films">Aucun film.</p>'; return; }
+            el.innerHTML = films.map(renderFilmCard).join('');
+        }
+
+        function displaySeriesList() {
+            const el = document.getElementById('seriesResults');
+            if (!el) return;
+            const series = moviesData.filter(m => m.type === 'serie');
+            if (series.length === 0) { el.innerHTML = '<p class="no-films">Aucune série disponible.</p>'; return; }
+            el.innerHTML = series.map(renderFilmCard).join('');
+        }
+
+        function showFilmDetail(id) {
+            const m = moviesData.find(x => x.id === id);
+            if (!m) return;
+            window._lastOpenedType = m.type;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('filmDetailPage').classList.add('active');
+            const adminDel = currentUser?.isAdmin ? '<button class="reveal-btn danger-btn" onclick="deleteMovie(' + m.id + ')" style="margin-top:1rem;background:#ff4444;"><i class="fas fa-trash"></i> Supprimer (Admin)</button>' : '';
+            document.getElementById('filmDetailContent').innerHTML = '<div class="film-detail-content"><img src="' + m.poster + '" alt="' + esc(m.title) + '" class="film-poster-large" onerror="this.style.background=\'#1a1a1a\'"><div class="film-info-detailed"><h1 class="film-title-large">' + esc(m.title) + '</h1><div class="film-meta-large"><span><i class="far fa-calendar-alt"></i> ' + m.year + '</span><span><i class="far fa-clock"></i> ' + m.duration + '</span><span><i class="fas fa-video"></i> ' + m.quality + '</span><span><i class="fas fa-database"></i> ' + m.size + '</span></div><p class="film-description">' + m.description + '</p><div class="film-card-genres" style="margin-bottom:2rem;">' + m.genres.map(g => '<span class="film-card-genre">' + g + '</span>').join('') + '</div><div class="film-technical-info"><h3>Informations techniques</h3><div class="tech-info-item"><span class="tech-label"><i class="fas fa-language"></i> Langue</span><span class="tech-value">' + m.language + '</span></div><div class="tech-info-item"><span class="tech-label"><i class="fas fa-film"></i> Qualité</span><span class="tech-value">' + m.quality + '</span></div><div class="tech-info-item"><span class="tech-label"><i class="fas fa-hdd"></i> Taille</span><span class="tech-value">' + m.size + '</span></div><div class="tech-info-item"><span class="tech-label"><i class="far fa-calendar-plus"></i> Ajouté le</span><span class="tech-value">' + fmtDate(m.dateAdded) + '</span></div></div><button class="reveal-btn" onclick="revealLink(' + m.id + ')"><i class="fas fa-download"></i> Télécharger</button>' + adminDel + '</div></div>';
+            window.scrollTo(0, 0);
+        }
+
+        function revealLink(id) { const m = moviesData.find(x => x.id === id); if (m?.link && m.link !== '#') window.open(m.link, '_blank'); else alert('Lien en préparation.'); }
+        function goBack() { showPage(window._lastOpenedType === 'serie' ? 'series' : 'films'); }
+
+        function searchFilm() {
+            const q = document.getElementById('filmsSearchInput').value.trim().toLowerCase();
+            const el = document.getElementById('filmsResults');
+            const films = moviesData.filter(m => m.type !== 'serie');
+            if (!q) { displayMoviesList(); return; }
+            const results = films.filter(m => m.title.toLowerCase().includes(q) || (m.genres || []).some(g => g.toLowerCase().includes(q)));
+            el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucun résultat.</p>';
+        }
+
+        function filterFilms(filter, event) {
+            document.querySelectorAll('#filmsPage .filter-btn').forEach(b => b.classList.remove('active'));
+            event?.target?.classList.add('active');
+            const el = document.getElementById('filmsResults');
+            const films = moviesData.filter(m => m.type !== 'serie');
+            if (filter === 'all') { displayMoviesList(); return; }
+            const results = films.filter(m => m.language === filter || (m.quality || '').includes(filter));
+            el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucun film.</p>';
+        }
+
+        function searchSerie() {
+            const q = document.getElementById('seriesSearchInput')?.value.trim().toLowerCase();
+            const el = document.getElementById('seriesResults');
+            const series = moviesData.filter(m => m.type === 'serie');
+            if (!q) { displaySeriesList(); return; }
+            const results = series.filter(m => m.title.toLowerCase().includes(q) || (m.genres || []).some(g => g.toLowerCase().includes(q)));
+            el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucun résultat.</p>';
+        }
+
+        function filterSeries(filter, event) {
+            document.querySelectorAll('#seriesPage .filter-btn').forEach(b => b.classList.remove('active'));
+            event?.target?.classList.add('active');
+            const el = document.getElementById('seriesResults');
+            const series = moviesData.filter(m => m.type === 'serie');
+            if (filter === 'all') { displaySeriesList(); return; }
+            const results = series.filter(m => m.language === filter || (m.quality || '').includes(filter));
+            el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucune série trouvée.</p>';
+        }
+
+        function showPage(name) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(name + 'Page')?.classList.add('active');
+            document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(l => { l.classList.remove('active'); const t = l.textContent.toLowerCase(); if ((name === 'home' && t.includes('accueil')) || (name === 'films' && t.includes('film')) || (name === 'series' && t.includes('série')) || (name === 'suggestions' && t.includes('suggestion'))) l.classList.add('active'); });
+            window.scrollTo(0, 0);
+            if (name === 'home') renderHomePage();
+            if (name === 'films') displayMoviesList();
+            if (name === 'series') displaySeriesList();
+            if (name === 'suggestions') updateAuthUI();
+        }
+
+        function toggleSearch() { const o = document.getElementById('searchOverlay'); const i = document.getElementById('overlaySearchInput'); if (o) { o.classList.toggle('active'); if (o.classList.contains('active') && i) i.focus(); } }
+
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileNavDrawer');
+            const backdrop = document.getElementById('mobileNavBackdrop');
+            if (drawer && backdrop) {
+                drawer.classList.toggle('active');
+                backdrop.classList.toggle('active');
+                document.body.style.overflow = drawer.classList.contains('active') ? 'hidden' : '';
+            }
+        }
+
+        // ===== SUGGESTIONS =====
+        async function fetchSuggestions() {
+            const { data, error } = await sb.from('suggestions').select('*').order('created_at', { ascending: false });
+            if (error) { console.error('[ZenFlix] Sug error:', error); suggestionsData = []; }
+            else { suggestionsData = data || []; console.log('[ZenFlix]', suggestionsData.length, 'suggestions'); }
+            displaySuggestions();
+        }
+
+        function displaySuggestions() {
+            const list = document.getElementById('suggestionsList');
+            if (!list) return;
+            if (suggestionsData.length === 0) { list.innerHTML = '<p class="no-suggestions">Aucune suggestion.</p>'; return; }
+
+            list.innerHTML = suggestionsData.map(s => {
+                const isAuthor = currentUser && s.author_id === currentUser.id;
+                const isAdmin = currentUser?.isAdmin;
+                const canDelete = isAuthor || isAdmin;
+                const hasLiked = currentUser && s.liked_by?.includes(currentUser.id);
+                const likeCount = s.liked_by?.length || 0;
+
+                // Déterminer si l'auteur de la suggestion est admin
+                const isSuggestionAdmin = ADMIN_USERNAMES.includes(s.author);
+
+                // Bandeau admin très visible pour les suggestions d'admin
+                const adminBanner = isSuggestionAdmin
+                    ? '<div style="background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;text-align:center;padding:0.4rem;font-size:0.7rem;font-weight:800;letter-spacing:1px;border-radius:6px 6px 0 0;margin:-1.5rem -1.5rem 1rem -1.5rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;box-shadow:0 2px 10px rgba(255,215,0,0.3);"><i class="fas fa-crown"></i> SUGGESTION ADMINISTRATEUR <i class="fas fa-crown"></i></div>'
+                    : '';
+
+                // Bordure dorée pour les suggestions d'admin
+                const cardBorder = isSuggestionAdmin ? 'border:1px solid rgba(255,215,0,0.4);box-shadow:0 0 15px rgba(255,215,0,0.15);' : '';
+
+                return '<div class="suggestion-item" style="' + cardBorder + '">' +
+                    adminBanner +
+                    '<div class="suggestion-author"><i class="fas fa-user"></i> ' + esc(s.author) +
+                    (isSuggestionAdmin ? adminBadge : '') +
+                    '</div>' +
+                    '<div class="suggestion-item-header"><h4 class="suggestion-item-title">' + esc(s.title) + (s.year ? ' (' + s.year + ')' : '') + '</h4><span class="suggestion-item-type">' + (s.type === 'film' ? 'Film' : 'Série') + '</span></div>' +
+                    (s.genre ? '<div style="margin-top:0.6rem;"><span class="film-card-genre">' + esc(s.genre) + '</span></div>' : '') +
+                    (s.comment ? '<p class="suggestion-item-comment">' + esc(s.comment) + '</p>' : '') +
+                    '<div class="suggestion-item-footer"><button class="like-btn ' + (hasLiked ? 'active' : '') + '" onclick="likeSug(\'' + s.id + '\')" ' + (!currentUser ? 'disabled' : '') + '><i class="fas fa-thumbs-up"></i> ' + likeCount + '</button><span class="suggestion-item-date">' + fmtDate(s.created_at) + '</span>' +
+                    (canDelete ? '<button class="delete-btn" onclick="deleteSug(\'' + s.id + '\')"><i class="fas fa-trash"></i> Supprimer</button>' : '') +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function attachFormEvent() {
+            const form = document.getElementById('suggestionForm');
+            if (form) form.onsubmit = async e => {
+                e.preventDefault();
+                if (!currentUser) { alert("Connecte-toi."); return; }
+                const fd = new FormData(form);
+                const s = { id: crypto.randomUUID(), author_id: currentUser.id, author: currentUser.username, type: fd.get('type'), title: fd.get('title').trim(), year: fd.get('year') ? parseInt(fd.get('year')) : null, genre: fd.get('genre')?.trim() || null, comment: fd.get('comment')?.trim() || null, liked_by: [] };
+                const { error } = await sb.from('suggestions').insert([s]);
+                if (error) { alert("Erreur: " + error.message); return; }
+                suggestionsData.unshift(s); displaySuggestions(); form.reset();
+            };
+        }
+
+        async function likeSug(id) {
+            if (!currentUser) return;
+            const s = suggestionsData.find(x => x.id === id); if (!s) return;
+            const likedBy = s.liked_by || []; const idx = likedBy.indexOf(currentUser.id);
+            if (idx > -1) likedBy.splice(idx, 1); else likedBy.push(currentUser.id);
+            await sb.from('suggestions').update({ liked_by: likedBy }).eq('id', id);
+            s.liked_by = likedBy; displaySuggestions();
+        }
+
+        async function deleteSug(id) {
+            const s = suggestionsData.find(x => x.id === id); if (!s) return;
+            if (currentUser?.isAdmin || s.author_id === currentUser.id) {
+                if (confirm('Supprimer ?')) { await sb.from('suggestions').delete().eq('id', id); suggestionsData = suggestionsData.filter(x => x.id !== id); displaySuggestions(); }
+            }
+        }
+
+        // ===== UTILS =====
+        function esc(t) { if (!t) return ''; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        function fmtDate(d) { if (!d) return ''; return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); }
+
+        // ===== EXPOSE TO WINDOW =====
+        window.showPage = showPage;
+        window.toggleSearch = toggleSearch;
+        window.openAuthModal = openAuthModal;
+        window.closeAuthModal = closeAuthModal;
+        window.switchAuthTab = switchAuthTab;
+        window.handleAuth = handleAuth;
+        window.doLogout = doLogout;
+        window.openAccountModal = openAccountModal;
+        window.closeAccountModal = closeAccountModal;
+        window.saveAccountChanges = saveAccountChanges;
+        window.openAddMovieModal = openAddMovieModal;
+        window.closeAddMovieModal = closeAddMovieModal;
+        window.deleteMovie = deleteMovie;
+        window.showFilmDetail = showFilmDetail;
+        window.revealLink = revealLink;
+        window.goBack = goBack;
+        window.searchFilm = searchFilm;
+        window.filterFilms = filterFilms;
+        window.searchSerie = searchSerie;
+        window.filterSeries = filterSeries;
+        window.renderHomePage = renderHomePage;
+        window.toggleMobileMenu = toggleMobileMenu;
+        window.displaySeriesList = displaySeriesList;
+        window.likeSug = likeSug;
+        window.deleteSug = deleteSug;
+        window.showForgotPassword = showForgotPassword;
+        window.closeForgotModal = closeForgotModal;
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('[ZenFlix] DOM ready');
+            checkSession();
+
+            document.getElementById('authForm')?.addEventListener('submit', handleAuth);
+            document.getElementById('forgotForm')?.addEventListener('submit', handleForgotPassword);
+
+            // Recherche au clavier : Entrée déclenche la recherche
+            document.getElementById('filmsSearchInput')?.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); searchFilm(); }
+            });
+            document.getElementById('overlaySearchInput')?.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const q = e.target.value.trim();
+                    toggleSearch();
+                    showPage('films');
+                    const input = document.getElementById('filmsSearchInput');
+                    if (input) { input.value = q; searchFilm(); }
+                }
+            });
+
+            document.getElementById('addMovieForm')?.addEventListener('submit', e => {
+                e.preventDefault();
+                if (!currentUser?.isAdmin) return;
+                const genres = document.getElementById('movieGenres').value.split(',').map(g => g.trim()).filter(g => g);
+                const movie = { id: Date.now(), title: document.getElementById('movieTitle').value.trim(), year: parseInt(document.getElementById('movieYear').value), genres, poster: document.getElementById('moviePoster').value.trim() || '', description: document.getElementById('movieDescription').value.trim(), duration: document.getElementById('movieDuration').value.trim() || 'N/A', language: document.getElementById('movieLanguage').value, quality: document.getElementById('movieQuality').value.trim(), size: document.getElementById('movieSize').value.trim() || 'N/A', link: document.getElementById('movieLink').value.trim() || '#', dateAdded: new Date().toISOString().split('T')[0], featured: document.getElementById('movieFeatured').checked };
+                moviesData.unshift(movie); localStorage.setItem('zenflix_movies', JSON.stringify(moviesData));
+                closeAddMovieModal(); alert('Film "' + movie.title + '" ajouté !'); displayMoviesList();
+            });
+
+            document.querySelector('.navbar') && window.addEventListener('scroll', () => document.querySelector('.navbar').classList.toggle('scrolled', window.pageYOffset > 50));
+
+            ['authModal', 'accountModal', 'addMovieModal', 'forgotModal'].forEach(id => {
+                const modal = document.getElementById(id);
+                modal?.addEventListener('click', e => { if (e.target === modal) { modal.classList.remove('active'); if (id === 'authModal') { document.getElementById('authForm').reset(); switchAuthTab('login'); } } });
+            });
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') ['searchOverlay', 'authModal', 'accountModal', 'addMovieModal', 'forgotModal'].forEach(id => { const el = document.getElementById(id); if (el?.classList.contains('active')) { el.classList.remove('active'); if (id === 'authModal') { document.getElementById('authForm').reset(); switchAuthTab('login'); } } });
+            });
+
+            sb.auth.onAuthStateChange((event, session) => {
+                console.log('[ZenFlix] Auth state:', event);
+                if (event === 'SIGNED_OUT') { currentUser = null; localStorage.removeItem('zenflix_session'); updateAuthUI(); }
+                else if (event === 'SIGNED_IN' && session?.user) checkSession();
+            });
+
+            fetchSuggestions();
+            renderHomePage();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1691cf77bfdd0bf',t:'MTc4MzI4MzI3NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1716f0cbe80c44b',t:'MTc4MzM3MDUyMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
