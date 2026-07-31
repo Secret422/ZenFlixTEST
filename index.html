@@ -1008,7 +1008,11 @@
                 <div class="seasons-container">
                     <h3 class="seasons-header-title"><i class="fas fa-list-ul" style="color:var(--accent);"></i> Saisons disponibles (${m.seasons.length})</h3>
                     <div class="seasons-list">
-                        ${m.seasons.map((s, idx) => `
+                        ${m.seasons.map((s, idx) => {
+                            const epStr = s.episodes || '';
+                            const epMatch = epStr.match(/(\d+)/);
+                            const epCount = epMatch ? parseInt(epMatch[1]) : 0;
+                            return `
                         <div class="season-card" onclick="toggleSeasonExpand(${m.id}, ${idx})">
                             <div class="season-card-header">
                                 <div class="season-card-title-wrap">
@@ -1029,11 +1033,35 @@
                                     <div><span>Année :</span> <strong>${s.year}</strong></div>
                                     <div><span>Épisodes :</span> <strong>${esc(s.episodes)}</strong></div>
                                 </div>
-                                <button class="reveal-btn season-download-full" onclick="revealLink(${m.id}, '${s.link || '#'}')">
+                                <button class="reveal-btn season-download-full" onclick="revealLink(${m.id}, '${(s.link || '#').replace(/'/g,"\\'")}')">
                                     <i class="fas fa-download"></i> Télécharger la Saison ${s.season}
                                 </button>
+                                <div class="episodes-section" style="margin-top:1.2rem;">
+                                    <h4 style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:0.8rem;"><i class="fas fa-tv" style="color:var(--accent);margin-right:0.4rem;"></i>Épisodes de la saison ${s.season}</h4>
+                                    <div class="episodes-grid">
+                                        ${Array.from({length: Math.max(epCount, 1)}, (_, i) => i + 1).map(epNum => `
+                                            <div class="episode-card" onclick="event.stopPropagation(); toggleEpisodeExpand(${m.id}, ${idx}, ${epNum})">
+                                                <div class="episode-header">
+                                                    <span class="episode-num-badge">E${epNum}</span>
+                                                    <span class="episode-label">Épisode ${epNum}</span>
+                                                    <span class="episode-icon" id="epIcon_${m.id}_${idx}_${epNum}"><i class="fas fa-chevron-down"></i></span>
+                                                </div>
+                                                <div class="episode-body" id="epBody_${m.id}_${idx}_${epNum}" style="display:none;" onclick="event.stopPropagation();">
+                                                    <div class="episode-actions" style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+                                                        <button class="btn-red" onclick="revealLink(${m.id}, '${(s.link || '#').replace(/'/g,"\\'")}')" style="background:#e50914;color:#fff;border:none;padding:0.7rem 1.2rem;border-radius:6px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(229,9,20,0.3);">
+                                                            <i class="fas fa-download"></i> Télécharger le film
+                                                        </button>
+                                                        <button class="btn-blue" onclick="streamSeries(${m.id}, ${s.season}, ${epNum})" style="background:#1a6dd4;color:#fff;border:none;padding:0.7rem 1.2rem;border-radius:6px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(26,109,212,0.3);">
+                                                            <i class="fas fa-play"></i> Regarder en streaming
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>`).join('')}
+                                    </div>
+                                </div>
                             </div>
-                        </div>`).join('')}
+                        </div>`;
+                        }).join('')}
                     </div>
                 </div>`;
             } else {
@@ -1056,6 +1084,18 @@
                 const isHidden = body.style.display === 'none';
                 body.style.display = isHidden ? 'block' : 'none';
                 card.classList.toggle('expanded', isHidden);
+            }
+        }
+
+        function toggleEpisodeExpand(movieId, seasonIdx, epNum) {
+            const body = document.getElementById(`epBody_${movieId}_${seasonIdx}_${epNum}`);
+            const icon = document.getElementById(`epIcon_${movieId}_${seasonIdx}_${epNum}`);
+            const card = body?.closest('.episode-card');
+            if (body && card) {
+                const isHidden = body.style.display === 'none';
+                body.style.display = isHidden ? 'block' : 'none';
+                card.classList.toggle('expanded', isHidden);
+                if (icon) icon.innerHTML = isHidden ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
             }
         }
 
@@ -1119,6 +1159,51 @@
                 showToast("Chargement du player...", "success");
             } else {
                 showToast("Lien de streaming non disponible.", "info");
+            }
+        }
+
+        function streamSeries(id, seasonNum, epNum) {
+            if (!currentUser) {
+                showToast("Connexion requise pour streamer ce contenu.", "info");
+                openAuthModal();
+                return;
+            }
+            const m = moviesData.find(x => x.id === id);
+            if (m) {
+                const seasonData = m.seasons && m.seasons.find(s => s.season === seasonNum);
+                const streamLink = m.streamLink || (seasonData && seasonData.streamLink);
+                const page = document.getElementById('streamPage');
+                const iframe = document.getElementById('streamIframe');
+                document.getElementById('streamTitle').textContent = (m.title || '') + ' - S' + seasonNum + 'E' + epNum;
+                
+                console.log('[ZenFlix] Series streaming:', m.title, 'S'+seasonNum+'E'+epNum);
+                
+                iframe.src = '';
+                iframe.src = streamLink || seasonData?.link || 'https://tfx05.lol';
+                
+                page.classList.add('active');
+                document.querySelector('.navbar').style.display = 'none';
+                document.querySelector('.footer').style.display = 'none';
+                document.body.style.overflow = 'hidden';
+                page.classList.add('show-ui');
+                document.getElementById('streamLoading').classList.add('active');
+                document.getElementById('streamShowBtn').classList.remove('active');
+                
+                setTimeout(() => {
+                    document.getElementById('streamLoading').classList.remove('active');
+                }, 3000);
+                
+                resetStreamUITimer();
+                
+                page.onmousemove = function() {
+                    page.classList.add('show-ui');
+                    document.getElementById('streamShowBtn').classList.remove('active');
+                    resetStreamUITimer();
+                };
+                
+                showToast("Chargement du streaming série...", "success");
+            } else {
+                showToast("Contenu non trouvé.", "info");
             }
         }
 
@@ -1343,6 +1428,8 @@
         window.renderHomePage = renderHomePage;
         window.toggleMobileMenu = toggleMobileMenu;
         window.toggleSeasonExpand = toggleSeasonExpand;
+        window.toggleEpisodeExpand = toggleEpisodeExpand;
+        window.streamSeries = streamSeries;
         window.showToast = showToast;
         window.displaySeriesList = displaySeriesList;
         window.likeSug = likeSug;

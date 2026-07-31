@@ -1789,3 +1789,19 @@ body {
     .carousel-item { flex: 0 0 140px; }
     .hero-title { font-size: 2rem; }
 }
+
+/* === EPISODES & STREAMING BUTTONS === */
+.episodes-section { margin-top: 1rem; }
+.episodes-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+.episode-card { background: #181818; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; overflow: hidden; transition: all 0.2s; }
+.episode-card:hover { border-color: rgba(229,9,20,0.4); }
+.episode-card.expanded { border-color: var(--accent); box-shadow: 0 4px 15px rgba(229,9,20,0.2); }
+.episode-header { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; cursor: pointer; }
+.episode-num-badge { background: rgba(229,9,20,0.15); color: var(--accent); font-weight: 800; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; }
+.episode-label { font-weight: 600; font-size: 0.9rem; }
+.episode-icon { color: var(--text-secondary); transition: transform 0.2s; }
+.episode-card.expanded .episode-icon { transform: rotate(180deg); color: var(--accent); }
+.episode-body { padding: 0.8rem 1rem; border-top: 1px solid rgba(255,255,255,0.06); background: #0f0f0f; }
+.episode-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.episode-actions button { flex: 1; min-width: 120px; }
+
