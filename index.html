@@ -9,6 +9,8 @@
     <link rel="apple-touch-icon" href="ZenFlix.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Configuration de la page d'accueil (modifiable facilement) -->
+    <script src="home-config.js"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -214,6 +216,10 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label>Lien de streaming (Pixeldrain, etc.)</label>
+                    <input type="text" id="movieStreamLink" placeholder="https://pixeldrain.com/u/...">
+                </div>
+                <div class="form-group">
                     <label>
                         <input type="checkbox" id="movieFeatured" style="width:auto;margin-right:0.5rem;"> Mettre en avant (featured)
                     </label>
@@ -247,6 +253,7 @@
                         <div class="filters-bar">
                             <span class="filter-label">Filtres:</span>
                             <button class="filter-btn active" onclick="filterFilms('all', event)">Tous</button>
+                            <button class="filter-btn" onclick="filterFilms('streaming', event)"><i class="fas fa-play"></i> Streaming</button>
                             <button class="filter-btn" onclick="filterFilms('VOSTFR', event)">VOSTFR</button>
                             <button class="filter-btn" onclick="filterFilms('MULTI', event)">MULTI</button>
                             <button class="filter-btn" onclick="filterFilms('1080p', event)">1080p</button>
@@ -278,6 +285,7 @@
                         <div class="filters-bar">
                             <span class="filter-label">Filtres:</span>
                             <button class="filter-btn active" onclick="filterSeries('all', event)">Toutes</button>
+                            <button class="filter-btn" onclick="filterSeries('streaming', event)"><i class="fas fa-play"></i> Streaming</button>
                             <button class="filter-btn" onclick="filterSeries('VOSTFR', event)">VOSTFR</button>
                             <button class="filter-btn" onclick="filterSeries('MULTI', event)">MULTI</button>
                             <button class="filter-btn" onclick="filterSeries('1080p', event)">1080p / 4K</button>
@@ -343,10 +351,46 @@
         </div>
     </main>
 
+    <!-- Stream Page - Fullscreen Player -->
+    <div id="streamPage" class="stream-page">
+        <div class="stream-bg"></div>
+        
+        <!-- Top info bar -->
+        <div class="stream-top" id="streamTop">
+            <div class="stream-top-left">
+                <button class="stream-btn-back" onclick="exitStream()" title="Quitter (Esc)">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <span class="stream-top-divider"></span>
+                <span class="stream-top-title" id="streamTitle">Spider Man Brand New Day</span>
+            </div>
+            <div class="stream-top-right">
+                <button class="stream-btn-icon" onclick="toggleStreamFullscreen()" id="streamFsBtn" title="Plein écran">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Iframe for the video stream -->
+        <iframe id="streamIframe" class="stream-iframe" src="" frameborder="0" allow="autoplay; fullscreen" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+
+        <!-- Loading overlay while iframe loads -->
+        <div class="stream-loading" id="streamLoading">
+            <div class="stream-spinner"></div>
+            <p class="stream-loading-text">Chargement du lecteur...</p>
+        </div>
+
+        <!-- Floating show-controls button (visible quand UI cachée) -->
+        <div class="stream-show-btn" id="streamShowBtn" onclick="showStreamUI()" title="Afficher les commandes">
+            <i class="fas fa-chevron-up"></i>
+        </div>
+    </div>
+
     <footer class="footer">
         <div class="footer-container">
             <p>&copy; 2026 ZenFlix · FR. Tous droits réservés.</p>
             <p class="footer-disclaimer">Plateforme de streaming communautaire. Développé par un indépendant, veillez me soutenir : (SOON).</p>
+            <p class="footer-disclaimer">ZenFlix n'héberge aucun fichier, mais propose des liens vers des services tiers. Les questions juridiques doivent être traités avec les hébergeurs et les fournisseurs de fichiers. ZenFlix n'est pas responsable des fichiers multimédias diffusés par les fournisseurs de vidéos.</p>
             <p class="footer-author">By DaRtoXxx</p>
         </div>
     </footer>
@@ -362,68 +406,110 @@
         console.log('[ZenFlix] ✅ Supabase initialized');
 
         const defaultMovies = [
-            { id: 1, title: "Obsession", type: "film", year: 2026, genres: ["Horreur", "Thriller", "Fantastique"], poster: "Obsession.webp", backdrop: "ObsessionBack.png", description: "Un jeune introverti met la main sur un objet magique capable d'exaucer n'importe quel souhait. Son coup de foudre de toujours tombe alors raide dingue de lui, mais la situation bascule rapidement jusqu'à l'obsession la plus totale.", duration: "108 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "4.34 GB", link: "https://1fichier.com/?kkwp728e9l62859jk77q&af=5010551", dateAdded: "2026-05-13", featured: true },
-            { id: 2, title: "Michael", type: "film", year: 2026, genres: ["Biopic", "Drame", "Musique"], poster: "Michael.webp", description: "Un portrait détaillé de l'homme complexe qui est devenu le Roi de la Pop. Le film nous fait revivre les performances les plus emblématiques de Michael Jackson tout en donnant un aperçu de sa démarche artistique et de sa vie personnelle.", duration: "127 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "4.20 GB", link: "https://1fichier.com/?8e9jhmdkom6goa6n5u3z&af=5010551", dateAdded: "2026-04-22", featured: true },
-            { id: 3, title: "Interstellar", type: "film", year: 2014, genres: ["Science-Fiction", "Drame", "Aventure"], poster: "Interstellar.jpg", description: "Alors que la Terre se meurt, une équipe d'astronautes traverse un trou de ver récemment découvert afin de trouver une nouvelle planète habitable pour sauver l'humanité.", duration: "169 min", language: "MULTI", quality: "HDLight 1080p", size: "4.94 GB", link: "https://1fichier.com/?h542vuyz7wha46xb5k4y&af=3456997", dateAdded: "2014-11-05", featured: true },
-            { id: 4, title: "Backrooms", type: "film", year: 2026, genres: ["Horreur", "Science-Fiction"], poster: "Backrooms.webp", description: "Une étrange porte apparaît dans le sous-sol d'un magasin de meubles, ouvrant sur un réseau infini de chambres interconnectées et jaunâtres où le temps se courbe et où une entité terrifiante est aux aguets.", duration: "111 min", language: "VOSTFR", quality: "HDLight 1080p (x265)", size: "2.0 GB", link: "https://gofile.io/d/xcGCEm", dateAdded: "2026-06-17", featured: true },
-            { id: 5, title: "Toy Story 5", type: "film", year: 2026, genres: ["Animation", "Aventure", "Comédie", "Famille"], poster: "ToyStory5.webp", description: "Bonnie, désormais âgée de 8 ans, délaisse ses jouets traditionnels pour une tablette tactile. Woody, Buzz l'Éclair et leurs amis vont devoir rivaliser d'ingéniosité pour reconquérir le cœur de leur propriétaire face aux nouvelles technologies.", duration: "100 min", language: "MULTI", quality: "1080p", size: "4.19", link: "https://1fichier.com/?k0r5juxdzrq1p9s4epr8&af=5010551", dateAdded: "2026-06-17", featured: true },
-            { id: 6, title: "Des Minions et des Monstres", type: "film", year: 2026, genres: ["Animation", "Comédie", "Famille"], poster: "MinionsMonstres.jpg", description: "Les Minions sont de nouveau à la recherche d'un génie du mal à servir, mais leur quête va les mener à découvrir un tout nouveau monde... Hollywood, envahi de monstres hauts en couleur !", duration: "95 min", language: "MULTI", quality: "720p", size: "0.75 GB", link: "https://store-eu-par-5.gofile.io/download/web/81ee7154-6944-47e1-9b9b-e01ab85806a6/Minions-Monsters-2026.mp4", dateAdded: "2026-06-24", featured: true },
-            { id: 7, title: "Jumpers", type: "film", year: 2026, genres: ["Animation", "Aventure", "Comédie"], poster: "Jumpers.webp", description: "Mabel, une jeune fille passionnée par les animaux, accepte de tester une invention top secrète : un système qui transfère son esprit dans un castor robot.", duration: "104 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.41 GB", link: "https://1fichier.com/?2u9ay0rb0527524jopoc&af=5010551", dateAdded: "2026-03-04", featured: true },
-            { id: 8, title: "Predator Badlands", type: "film", year: 2025, genres: ["Action", "Science-Fiction", "Thriller"], poster: "PredatorBadlands.png", description: "Dans les badlands d'une planète lointaine, un chasseur Predator redoutable traque sa proie la plus dangereuse à ce jour.", duration: "106 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.51 GB", link: "https://1fichier.com/?xcayhbhr9oljem69yjl9&af=5010551", dateAdded: "2025-11-05", featured: true },
-            { id: 18, title: "Spider-Man", type: "film", year: 2002, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan1.jpg", description: "Après avoir été mordu par une araignée génétiquement modifiée, le jeune Peter Parker développe de super-pouvoirs et choisit de lutter contre le crime sous l'identité de Spider-Man.", duration: "121 min", language: "MULTI", quality: "HDLight 1080p", size: "3.95 GB", link: "https://1fichier.com/?njpbmqk225mr4ibfur3j&af=5010551", dateAdded: "2002-05-03", featured: true },
-            { id: 19, title: "Spider-Man 2", type: "film", year: 2004, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan2.jpg", description: "Peter Parker a du mal à concilier sa vie privée et ses devoirs de super-héros. Il doit pourtant affronter une nouvelle menace redoutable : le redoutable Docteur Octopus.", duration: "127 min", language: "MULTI", quality: "HDLight 1080p", size: "3.99 GB", link: "https://1fichier.com/?20hg9i18gro61mj1gvk0", dateAdded: "2004-06-30", featured: true },
-            { id: 20, title: "Spider-Man 3", type: "film", year: 2007, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan3.jpg", description: "Une mystérieuse matière noire venue de l'espace fusionne avec le costume de Spider-Man, amplifiant ses pouvoirs mais altérant aussi sa personnalité, alors que de nouveaux ennemis surgissent.", duration: "139 min", language: "MULTI", quality: "HDLight 1080p", size: "4.08 GB", link: "https://1fichier.com/?6rkbrus0b2pbqy94k558&af=5010551", dateAdded: "2007-05-04", featured: true },
-            { id: 21, title: "Spider-Man: Homecoming", type: "film", year: 2017, genres: ["Action", "Aventure", "Science-Fiction"], poster: "SpiderManHomecoming.jpg", description: "De retour chez lui après ses aventures avec les Avengers, Peter Parker tente de reprendre sa vie normale sous l'œil attentif de son mentor Tony Stark, mais le Vautour menace la ville.", duration: "133 min", language: "VF", quality: "HDLight 1080p (x265)", size: "2.53 GB", link: "https://1fichier.com/?k1x4nkjbcouxh9ev6tpi&af=5010551", dateAdded: "2017-07-07", featured: true },
-            { id: 22, title: "Spider-Man: Far From Home", type: "film", year: 2019, genres: ["Action", "Aventure", "Science-Fiction"], poster: "SpiderManFarFromHome.jpg", description: "Peter Parker décide de rejoindre ses meilleurs amis pour un voyage d'études en Europe. Mais ses vacances sont écourtées lorsqu'il accepte d'aider Nick Fury à résoudre le mystère de plusieurs attaques de créatures.", duration: "129 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.02 GB", link: "https://1fichier.com/?fyp2prhv2fu2l6abecfd&af=5257374", dateAdded: "2019-07-02", featured: true },
-            { id: 23, title: "Spider-Man: No Way Home", type: "film", year: 2021, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderManNoWayHome.jpg", description: "Pour la première fois, l'identité de Spider-Man est révélée. Peter demande de l'aide au Docteur Strange pour restaurer son secret, mais le sort tourne mal et fracture le multivers.", duration: "148 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.95 GB", link: "https://1fichier.com/?szycv9krkv1e1cbi9ve0&af=5010551", dateAdded: "2021-12-17", featured: true },
-            { id: 9, title: "Aladdin", type: "film", year: 1993, genres: ["Aventure", "Fantastique", "Romance"], poster: "Aladdin.webp", description: "Aladdin, un jeune homme des rues, tombe amoureux de la belle princesse Jasmine. Il découvre une lampe magique contenant un génie.", duration: "90 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.96 GB", link: "https://1fichier.com/?j3vrcva3e8knfssz7t78&af=5010551", dateAdded: "1993-11-24", featured: false },
-            { id: 10, title: "Scary Movie", type: "film", year: 2000, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie.jpg", description: "Drew Becker, la plus belle fille du lycée, est sauvagement assassinée par un tueur masqué. Une bande de six adolescents complètement paumés se rend compte qu'un tueur en série se cache parmi eux et parodie les classiques du genre.", duration: "97 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.27 GB", link: "https://1fichier.com/?05434uvdytajvjku461c&af=4522893", dateAdded: "2000-06-03", featured: true },
-            { id: 25, title: "Scary Movie 2", type: "film", year: 2001, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie2.jpg", description: "Un professeur fou piège Cindy Campbell et sa bande de copains déjantés dans une maison prétendument hantée pour mener une expérience scientifique secrète, donnant lieu à des parodies de films de fantômes.", duration: "83 min", language: "MULTI", quality: "HDLight 1080p", size: "2.63 GB", link: "https://1fichier.com/?4sjhcebrf5qhwfub79lf&af=4522893", dateAdded: "2001-07-25", featured: true },
-            { id: 26, title: "Scary Movie 3", type: "film", year: 2003, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie3.jpg", description: "Cindy Campbell, devenue journaliste, enquête sur une mystérieuse cassette vidéo tueuse et d'étranges crop circles apparus dans une ferme, parodiant ouvertement Le Cercle, Signes et Matrix.", duration: "84 min", language: "MULTI", quality: "HDLight 1080p", size: "2.72 GB", link: "https://1fichier.com/?708lbrp8kwqjacoi9d4m&af=4522893", dateAdded: "2003-12-24", featured: true },
-            { id: 27, title: "Scary Movie 4", type: "film", year: 2006, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie4.jpg", description: "Cindy s'occupe d'une vieille dame dans une maison hantée par un petit garçon, tandis que d'horribles tripodes extraterrestres envahissent la Terre. Une parodie délirante de La Guerre des Mondes et de The Grudge.", duration: "83 min", language: "MULTI", quality: "HDLight 1080p", size: "2.69 GB", link: "https://1fichier.com/?73p6air205is1v1nz3uk&af=4522893", dateAdded: "2006-06-21", featured: true },
-            { id: 28, title: "Scary Movie 5", type: "film", year: 2013, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie5.jpg", description: "Un jeune couple commence à remarquer des activités étranges dans leur maison après y avoir installé les trois enfants sauvages de leur frère. Les sagas Paranormal Activity, Mama et Evil Dead passent à la moulinette.", duration: "88 min", language: "MULTI", quality: "HDLight 1080p", size: "2.58 GB", link: "https://1fichier.com/?eg5f7a3szqoo6s1y6bky&af=5156779", dateAdded: "2013-04-12", featured: true },
-            { id: 29, title: "Scary Movie 6", type: "film", year: 2026, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie6.jpg", description: "Le sixième film de la saga culte revient après 13 ans d'absence pour parodier les récentes propositions horrifiques du cinéma : Scream, M3GAN, Sinners, Get Out, Smile, The Substance et Terrifier n'y échapperont pas !", duration: "97 min", language: "MULTI", quality: "HD 1080p", size: "3.26 GB", link: "https://1fichier.com/?9gh2tib3j84enrst8vdc&af=5010551", dateAdded: "2026-06-03", featured: true },
-            { id: 11, title: "Inception", type: "film", year: 2010, genres: ["Action", "Science-Fiction", "Thriller"], poster: "inception.jpg", description: "Un voleur expérimenté, capable de s'infiltrer dans les rêves des gens pour y dérober leurs secrets, se voit confier une mission ultime : implanter une idée dans l'esprit d'un individu au lieu de la voler.", duration: "148 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.26 GB", link: "https://1fichier.com/?rwcjwnkdbawgau88hdpa&af=4836655", dateAdded: "2010-07-21", featured: true },
-            { id: 12, title: "Titanic", type: "film", year: 1997, genres: ["Drame", "Romance"], poster: "Titanic.jpg", description: "À bord du plus grand paquebot du monde, une jeune femme de la haute société et un artiste pauvre vivent une histoire d'amour passionnée, ignorant le destin tragique qui attend le navire.", duration: "194 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.88 GB", link: "https://1fichier.com/?xjl6nha8oqdmt3evp0dr&af=4836655", dateAdded: "1997-12-19", featured: true },
-            { id: 13, title: "Forrest Gump", type: "film", year: 1994, genres: ["Drame", "Romance", "Comédie"], poster: "ForrestGump.jpg", description: "L'histoire touchante d'un homme simple d'esprit qui traverse les événements les plus marquants de l'histoire des États-Unis de la seconde moitié du XXe siècle, guidé par son grand cœur.", duration: "142 min", language: "MULTI", quality: "HDLight 1080p", size: "4.15 GB", link: "https://1fichier.com/?kjrz5xdtciwcfvjmkxah&af=4836655", dateAdded: "1994-10-05", featured: true },
-            { id: 14, title: "Fast and Furious", type: "film", year: 2001, genres: ["Action", "Policier", "Thriller"], poster: "FastAndFurious.jpg", description: "Un flic infiltré intègre le milieu des courses de voitures clandestines à Los Angeles pour enquêter sur des détournements de camions, mais se lie d'amitié avec le chef de bande.", duration: "106 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.49 GB", link: "https://1fichier.com/?dkpg19jojlqstcs8asn1&af=5010551", dateAdded: "2001-06-22", featured: true },
-            { id: 15, title: "Mamma Mia!", type: "film", year: 2008, genres: ["Comédie", "Musical", "Romance"], poster: "MammaMia.jpg", description: "Sur une île grecque paradisiaque, une future mariée invite secrètement trois anciens amants de sa mère dans l'espoir de découvrir lequel d'entre eux est son véritable père.", duration: "108 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.5 GB", link: "https://1fichier.com/?tunopu0rrxft93uv4iry&af=3394061", dateAdded: "2008-07-10", featured: true },
-            { id: 16, title: "La 5ème Vague", type: "film", year: 2016, genres: ["Science-Fiction", "Action", "Aventure"], poster: "La5emeVague.jpg", description: "Quatre vagues d'attaques extraterrestres de plus en plus mortelles ont décimé la majeure partie de la Terre. À l'aube de la 5ème vague, une adolescente tente désespérément de sauver son jeune frère.", duration: "112 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.50 GB", link: "https://1fichier.com/?zvwfzxtjncosovrtd3sb&af=5010551", dateAdded: "2016-01-27", featured: true },
-            { id: 17, title: "Shining", type: "film", year: 1980, genres: ["Horreur", "Drame", "Thriller"], poster: "shining.webp", description: "Jack Torrance accepte un emploi de gardien d'hôtel isolé durant l'hiver, accompagné de sa femme et de son fils télépathe. Peu à peu, l'endroit maudit va le pousser vers la folie et la violence.", duration: "150 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "7.44 GB", link: "https://1fichier.com/?a01ls1oe2s6472oigc6z&af=4836655", dateAdded: "1980-05-23", featured: false },
-            { id: 30, title: "Arcane", type: "serie", year: 2024, genres: ["Animation", "Action", "Science-Fiction"], poster: "Arcane.png", description: "Au milieu du conflit entre les villes jumelles de Piltover et Zaun, deux sœurs se battent dans des camps opposés d'une guerre entre technologies magiques et convictions incompatibles.", duration: "2 Saisons", language: "MULTI", quality: "HDLight/Web 1080p", size: "13.42 GB", dateAdded: "2024-11-09", featured: true, seasons: [
+            { id: 1, title: "Spider Man Brand New Day", type: "film", year: 2026, genres: ["Action", "Aventure", "Science-Fiction"], poster: "SpiderManBrandNewDay.jpg", backdrop: "SpiderManBrandNewDay.jpg", description: "Après les événements bouleversants du multivers, Peter Parker tente de se reconstruire à New York et de repartir de zéro sous le masque de Spider-Man, confronté à de nouveaux défis et adversaires..", duration: "108 min", language: "VOSTFR", quality: "WEB", size: "1.32 GB", link: "https://1fichier.com/?5k4wtdxc8jhzr4m1ml6p&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-969681-spider-man-brand-new-day", dateAdded: "2026-05-13", featured: true },
+            { id: 2, title: "Michael", type: "film", year: 2026, genres: ["Biopic", "Drame", "Musique"], poster: "Michael.webp", description: "Après les événements bouleversants du multivers, Peter Parker tente de se reconstruire à New York et de repartir de zéro sous le masque de Spider-Man, confronté à de nouveaux défis et adversaires.", duration: "127 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "4.20 GB", link: "https://zstream.mov/media/tmdb-movie-936075-michael" ,dateAdded: "2026-04-22", featured: true },
+            { id: 3, title: "Interstellar", type: "film", year: 2014, genres: ["Science-Fiction", "Drame", "Aventure"], poster: "Interstellar.jpg", description: "Alors que la Terre se meurt, une équipe d'astronautes traverse un trou de ver récemment découvert afin de trouver une nouvelle planète habitable pour sauver l'humanité.", duration: "169 min", language: "MULTI", quality: "HDLight 1080p", size: "4.94 GB", link: "https://1fichier.com/?h542vuyz7wha46xb5k4y&af=3456997", streamLink: "https://zstream.mov/media/tmdb-movie-157336-interstellar", dateAdded: "2014-11-05", featured: true },
+            { id: 4, title: "Backrooms", type: "film", year: 2026, genres: ["Horreur", "Science-Fiction"], poster: "Backrooms.webp", description: "Une étrange porte apparaît dans le sous-sol d'un magasin de meubles, ouvrant sur un réseau infini de chambres interconnectées et jaunâtres où le temps se courbe et où une entité terrifiante est aux aguets.", duration: "111 min", language: "VOSTFR-VF", quality: "HDLight 1080p (x265)", size: "2.0 GB", link: "https://gofile.io/d/xcGCEm", streamLink: "https://zstream.mov/media/tmdb-movie-1083381-backrooms", dateAdded: "2026-06-17", featured: true },
+            { id: 5, title: "Toy Story 5", type: "film", year: 2026, genres: ["Animation", "Aventure", "Comédie", "Famille"], poster: "ToyStory5.webp", description: "Bonnie, désormais âgée de 8 ans, délaisse ses jouets traditionnels pour une tablette tactile. Woody, Buzz l'Éclair et leurs amis vont devoir rivaliser d'ingéniosité pour reconquérir le cœur de leur propriétaire face aux nouvelles technologies.", duration: "100 min", language: "MULTI", quality: "1080p", size: "4.19", link: "https://1fichier.com/?k0r5juxdzrq1p9s4epr8&af=5010551", streamLink: "https://vidzy.org/embed-vcklx3t5eove.html", dateAdded: "2026-06-17", featured: true },
+            { id: 6, title: "Des Minions et des Monstres", type: "film", year: 2026, genres: ["Animation", "Comédie", "Famille"], poster: "MinionsMonstres.jpg", description: "Les Minions sont de nouveau à la recherche d'un génie du mal à servir, mais leur quête va les mener à découvrir un tout nouveau monde... Hollywood, envahi de monstres hauts en couleur !", duration: "95 min", language: "MULTI", quality: "720p", size: "1.15 GB", link: "https://1fichier.com/?r11412gprg12brf0qzek&af=5010551", streamLink: "https://vidzy.live/embed-5qandgevyt6g.html", dateAdded: "2026-06-24", featured: true },
+            { id: 7, title: "Jumpers", type: "film", year: 2026, genres: ["Animation", "Aventure", "Comédie"], poster: "Jumpers.webp", description: "Mabel, une jeune fille passionnée par les animaux, accepte de tester une invention top secrète : un système qui transfère son esprit dans un castor robot.", duration: "104 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.41 GB", link: "https://1fichier.com/?2u9ay0rb0527524jopoc&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-1327819-jumpers", dateAdded: "2026-03-04", featured: true },
+            { id: 8, title: "Predator Badlands", type: "film", year: 2025, genres: ["Action", "Science-Fiction", "Thriller"], poster: "PredatorBadlands.png", description: "Dans les badlands d'une planète lointaine, un chasseur Predator redoutable traque sa proie la plus dangereuse à ce jour.", duration: "106 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.51 GB", link: "https://1fichier.com/?xcayhbhr9oljem69yjl9&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-1242898-predator-badlands", dateAdded: "2025-11-05", featured: true },
+            { id: 9, title: "Spider-Man", type: "film", year: 2002, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan1.jpg", description: "Après avoir été mordu par une araignée génétiquement modifiée, le jeune Peter Parker développe de super-pouvoirs et choisit de lutter contre le crime sous l'identité de Spider-Man.", duration: "121 min", language: "MULTI", quality: "HDLight 1080p", size: "3.95 GB", link: "https://1fichier.com/?njpbmqk225mr4ibfur3j&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-557-spider-man", dateAdded: "2002-05-03", featured: true },
+            { id: 10, title: "Spider-Man 2", type: "film", year: 2004, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan2.jpg", description: "Peter Parker a du mal à concilier sa vie privée et ses devoirs de super-héros. Il doit pourtant affronter une nouvelle menace redoutable : le redoutable Docteur Octopus.", duration: "127 min", language: "MULTI", quality: "HDLight 1080p", size: "3.99 GB", link: "https://1fichier.com/?20hg9i18gro61mj1gvk0", streamLink: "https://zstream.mov/media/tmdb-movie-558-spider-man-2", dateAdded: "2004-06-30", featured: true },
+            { id: 11, title: "Spider-Man 3", type: "film", year: 2007, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderMan3.jpg", description: "Une mystérieuse matière noire venue de l'espace fusionne avec le costume de Spider-Man, amplifiant ses pouvoirs mais altérant aussi sa personnalité, alors que de nouveaux ennemis surgissent.", duration: "139 min", language: "MULTI", quality: "HDLight 1080p", size: "4.08 GB", link: "https://1fichier.com/?6rkbrus0b2pbqy94k558&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-559-spider-man-3", dateAdded: "2007-05-04", featured: true },
+            { id: 12, title: "Spider-Man: Homecoming", type: "film", year: 2017, genres: ["Action", "Aventure", "Science-Fiction"], poster: "SpiderManHomecoming.jpg", description: "De retour chez lui après ses aventures avec les Avengers, Peter Parker tente de reprendre sa vie normale sous l'œil attentif de son mentor Tony Stark, mais le Vautour menace la ville.", duration: "133 min", language: "VF", quality: "HDLight 1080p (x265)", size: "2.53 GB", link: "https://zstream.mov/media/tmdb-movie-315635-spider-man-homecoming", dateAdded: "2017-07-07", featured: true },
+            { id: 13, title: "Spider-Man: Far From Home", type: "film", year: 2019, genres: ["Action", "Aventure", "Science-Fiction"], poster: "SpiderManFarFromHome.jpg", description: "Peter Parker décide de rejoindre ses meilleurs amis pour un voyage d'études en Europe. Mais ses vacances sont écourtées lorsqu'il accepte d'aider Nick Fury à résoudre le mystère de plusieurs attaques de créatures.", duration: "129 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.02 GB", link: "https://1fichier.com/?fyp2prhv2fu2l6abecfd&af=5257374", streamLink: "https://zstream.mov/media/tmdb-movie-429617-spider-man-far-from-home", dateAdded: "2019-07-02", featured: true },
+            { id: 14, title: "Spider-Man: No Way Home", type: "film", year: 2021, genres: ["Action", "Aventure", "Fantastique"], poster: "SpiderManNoWayHome.jpg", description: "Pour la première fois, l'identité de Spider-Man est révélée. Peter demande de l'aide au Docteur Strange pour restaurer son secret, mais le sort tourne mal et fracture le multivers.", duration: "148 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.95 GB", link: "https://1fichier.com/?szycv9krkv1e1cbi9ve0&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-634649-spider-man-no-way-home", dateAdded: "2021-12-17", featured: true },
+            { id: 15, title: "Aladdin", type: "film", year: 1993, genres: ["Aventure", "Fantastique", "Romance"], poster: "Aladdin.webp", description: "Aladdin, un jeune homme des rues, tombe amoureux de la belle princesse Jasmine. Il découvre une lampe magique contenant un génie.", duration: "90 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.96 GB", link: "https://1fichier.com/?j3vrcva3e8knfssz7t78&af=5010551", streamLink: "https://uqload.is/embed-tpazsx2hr84d.html", dateAdded: "1993-11-24", featured: false },
+            { id: 16, title: "Scary Movie", type: "film", year: 2000, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie.jpg", description: "Drew Becker, la plus belle fille du lycée, est sauvagement assassinée par un tueur masqué. Une bande de six adolescents complètement paumés se rend compte qu'un tueur en série se cache parmi eux et parodie les classiques du genre.", duration: "97 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.27 GB", link: "https://zstream.mov/media/tmdb-movie-4247-scary-movie", dateAdded: "2000-06-03", featured: true },
+            { id: 17, title: "Scary Movie 2", type: "film", year: 2001, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie2.jpg", description: "Un professeur fou piège Cindy Campbell et sa bande de copains déjantés dans une maison prétendument hantée pour mener une expérience scientifique secrète, donnant lieu à des parodies de films de fantômes.", duration: "83 min", language: "MULTI", quality: "HDLight 1080p", size: "2.63 GB", link: "https://1fichier.com/?4sjhcebrf5qhwfub79lf&af=4522893", streamLink: "https://zstream.mov/media/tmdb-movie-4248-scary-movie-2", dateAdded: "2001-07-25", featured: true },
+            { id: 18, title: "Scary Movie 3", type: "film", year: 2003, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie3.jpg", description: "Cindy Campbell, devenue journaliste, enquête sur une mystérieuse cassette vidéo tueuse et d'étranges crop circles apparus dans une ferme, parodiant ouvertement Le Cercle, Signes et Matrix.", duration: "84 min", language: "MULTI", quality: "HDLight 1080p", size: "2.72 GB", link: "https://1fichier.com/?708lbrp8kwqjacoi9d4m&af=4522893", streamLink: "https://zstream.mov/media/tmdb-movie-4256-scary-movie-3", dateAdded: "2003-12-24", featured: true },
+            { id: 19, title: "Scary Movie 4", type: "film", year: 2006, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie4.jpg", description: "Cindy s'occupe d'une vieille dame dans une maison hantée par un petit garçon, tandis que d'horribles tripodes extraterrestres envahissent la Terre. Une parodie délirante de La Guerre des Mondes et de The Grudge.", duration: "83 min", language: "MULTI", quality: "HDLight 1080p", size: "2.69 GB", link: "https://1fichier.com/?73p6air205is1v1nz3uk&af=4522893", streamLink: "https://zstream.mov/media/tmdb-movie-4257-scary-movie-4", dateAdded: "2006-06-21", featured: true },
+            { id: 20, title: "Scary Movie 5", type: "film", year: 2013, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie5.jpg", description: "Un jeune couple commence à remarquer des activités étranges dans leur maison après y avoir installé les trois enfants sauvages de leur frère. Les sagas Paranormal Activity, Mama et Evil Dead passent à la moulinette.", duration: "88 min", language: "MULTI", quality: "HDLight 1080p", size: "2.58 GB", link: "https://1fichier.com/?eg5f7a3szqoo6s1y6bky&af=5156779", streamLink: "https://zstream.mov/media/tmdb-movie-4258-scary-movie-5", dateAdded: "2013-04-12", featured: true },
+            { id: 21, title: "Scary Movie 6", type: "film", year: 2026, genres: ["Comédie", "Horreur", "Parodie"], poster: "ScaryMovie6.jpg", description: "Le sixième film de la saga culte revient après 13 ans d'absence pour parodier les récentes propositions horrifiques du cinéma : Scream, M3GAN, Sinners, Get Out, Smile, The Substance et Terrifier n'y échapperont pas !", duration: "97 min", language: "MULTI", quality: "HD 1080p", size: "3.26 GB", link: "https://1fichier.com/?9gh2tib3j84enrst8vdc&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-1273221-scary-movie", dateAdded: "2026-06-03", featured: true },
+            { id: 22, title: "Inception", type: "film", year: 2010, genres: ["Action", "Science-Fiction", "Thriller"], poster: "inception.jpg", description: "Un voleur expérimenté, capable de s'infiltrer dans les rêves des gens pour y dérober leurs secrets, se voit confier une mission ultime : implanter une idée dans l'esprit d'un individu au lieu de la voler.", duration: "148 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.26 GB", link: "https://1fichier.com/?rwcjwnkdbawgau88hdpa&af=4836655", streamLink: "https://zstream.mov/media/tmdb-movie-27205-inception", dateAdded: "2010-07-21", featured: true },
+            { id: 23, title: "Titanic", type: "film", year: 1997, genres: ["Drame", "Romance"], poster: "Titanic.jpg", description: "À bord du plus grand paquebot du monde, une jeune femme de la haute société et un artiste pauvre vivent une histoire d'amour passionnée, ignorant le destin tragique qui attend le navire.", duration: "194 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.88 GB", link: "https://1fichier.com/?xjl6nha8oqdmt3evp0dr&af=4836655", streamLink: "https://zstream.mov/media/tmdb-movie-597-titanic", dateAdded: "1997-12-19", featured: true },
+            { id: 24, title: "Forrest Gump", type: "film", year: 1994, genres: ["Drame", "Romance", "Comédie"], poster: "ForrestGump.jpg", description: "L'histoire touchante d'un homme simple d'esprit qui traverse les événements les plus marquants de l'histoire des États-Unis de la seconde moitié du XXe siècle, guidé par son grand cœur.", duration: "142 min", language: "MULTI", quality: "HDLight 1080p", size: "4.15 GB", link: "https://1fichier.com/?kjrz5xdtciwcfvjmkxah&af=4836655", streamLink: "https://zstream.mov/media/tmdb-movie-13-forrest-gump", dateAdded: "1994-10-05", featured: true },
+            { id: 25, title: "Fast and Furious", type: "film", year: 2001, genres: ["Action", "Policier", "Thriller"], poster: "FastAndFurious.jpg", description: "Un flic infiltré intègre le milieu des courses de voitures clandestines à Los Angeles pour enquêter sur des détournements de camions, mais se lie d'amitié avec le chef de bande.", duration: "106 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.49 GB", link: "https://1fichier.com/?dkpg19jojlqstcs8asn1&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-9799-fast-and-furious", dateAdded: "2001-06-22", featured: true },
+            { id: 26, title: "Mamma Mia!", type: "film", year: 2008, genres: ["Comédie", "Musical", "Romance"], poster: "MammaMia.jpg", description: "Sur une île grecque paradisiaque, une future mariée invite secrètement trois anciens amants de sa mère dans l'espoir de découvrir lequel d'entre eux est son véritable père.", duration: "108 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.5 GB", link: "https://1fichier.com/?tunopu0rrxft93uv4iry&af=3394061", streamLink: "https://zstream.mov/media/tmdb-movie-11631-mamma-mia", dateAdded: "2008-07-10", featured: true },
+            { id: 27, title: "La 5ème Vague", type: "film", year: 2016, genres: ["Science-Fiction", "Action", "Aventure"], poster: "La5emeVague.jpg", description: "Quatre vagues d'attaques extraterrestres de plus en plus mortelles ont décimé la majeure partie de la Terre. À l'aube de la 5ème vague, une adolescente tente désespérément de sauver son jeune frère.", duration: "112 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.50 GB", link: "https://1fichier.com/?zvwfzxtjncosovrtd3sb&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-299687-la-5eme-vague", dateAdded: "2016-01-27", featured: true },
+            { id: 28, title: "Scream 7", type: "film", year: 2026, genres: ["Horreur", "Thriller"], poster: "scream7.jpeg", description: "Le célèbre tueur au masque de fantôme, Ghostface, revient pour terroriser une nouvelle fois les survivants de Woodsboro dans un septième opus qui promet de bousculer les règles établies du cinéma d'horreur.", duration: "115 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.50 GB", link: "https://1fichier.com/?zvwfzxtjncosovrtd3sb&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-1159559-scream-7", dateAdded: "2026-02-27", featured: true },
+            { id: 29, title: "Shining", type: "film", year: 1980, genres: ["Horreur", "Drame", "Thriller"], poster: "shining.webp", description: "Jack Torrance accepte un emploi de gardien d'hôtel isolé durant l'hiver, accompagné de sa femme et de son fils télépathe. Peu à peu, l'endroit maudit va le pousser vers la folie et la violence.", duration: "150 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "7.44 GB", link: "https://1fichier.com/?a01ls1oe2s6472oigc6z&af=4836655", streamLink: "https://zstream.mov/media/tmdb-movie-694-shining", dateAdded: "1980-05-23", featured: false },
+            { id: 30, title: "Super Mario Galaxy", type: "film", year: 2026, genres: ["Animation", "Aventure", "Comédie"], poster: "SuperMarioGalaxy.jpg", description: "Lorsque la princesse Peach est kidnappée par l'infâme Bowser dans l'immensité de l'espace, Mario s'élance à travers les galaxies et s'allie à la mystérieuse Harmonie pour sauver l'univers.", duration: "92 min", language: "MULTI", quality: "HDLight 1080p", size: "3.15 GB", link: "https://1fichier.com/?otxzud13wbxxo1ufrlgp&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-1226863-super-mario-galaxy-le-film", dateAdded: "2026-11-01", featured: true },
+            { id: 31, title: "Five Nights at Freddy's 2", type: "film", year: 2025, genres: ["Horreur", "Épouvante"], poster: "FNAF2.jpg", description: "La célèbre pizzeria rouvre ses portes avec de nouveaux animatroniques modernisés. Le nouveau gardien de nuit va devoir survivre face à des créatures encore plus agressives et imprévisibles.", duration: "105 min", language: "MULTI", quality: "HDLight 1080p", size: "3.20 GB", link: "https://1fichier.com/?xpw7ajwu0k6494k7k6on&af=3456997", streamLink: "https://zstream.mov/media/tmdb-movie-1228246-five-nights-at-freddys-2", dateAdded: "2025-12-05", featured: true },
+            { id: 32, title: "Zootopie 2", type: "film", year: 2025, genres: ["Animation", "Comédie", "Aventure"], poster: "Zootopie2.jpg", description: "Les détectives Judy Hopps et Nick Wilde sont de retour pour résoudre une nouvelle affaire complexe au cœur de la métropole de Zootopie, qui les pousse à explorer des quartiers inédits.", duration: "102 min", language: "MULTI", quality: "HDLight 1080p", size: "3.55 GB", link: "https://1fichier.com/?ps28c7pgwvfyss3esjn7&af=5010551", streamLink: "https://hugh.cdn.rumble.cloud/video/fww1/e5/s8/2/y/c/h/n/ychnA.aaa.mp4", dateAdded: "2025-11-26", featured: true },
+            { id: 33, title: "Cars", type: "film", year: 2006, genres: ["Animation", "Comédie", "Aventure"], poster: "Cars1.jpeg", description: "Flash McQueen, une splendide voiture de course promise au succès, se retrouve perdue au beau milieu de la mythique Route 66 et découvre que la vie ne se résume pas à franchir la ligne d'arrivée.", duration: "116 min", language: "MULTI", quality: "HDLight 1080p", size: "3.80 GB", link: "https://1fichier.com/?f68uzblbhj7w5cmftdao&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-920-cars-quatre-roues", dateAdded: "2006-06-14", featured: true },
+            { id: 34, title: "Cars 2", type: "film", year: 2011, genres: ["Animation", "Comédie", "Espionnage"], poster: "Cars2.jpeg", description: "Flash McQueen et son fidèle ami Martin s'envolent pour l'Europe et l'Asie afin de disputer le tout premier Grand Prix Mondial. Mais la route vers le titre est semée d'embûches et d'espionnage international.", duration: "106 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "4.12 GB", link: "https://1fichier.com/?j77j4kkbl21fankdvewa&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-49013-cars-2", dateAdded: "2011-07-27", featured: true },
+            { id: 35, title: "Cars 3", type: "film", year: 2017, genres: ["Animation", "Comédie", "Drame"], poster: "Cars3.jpeg", description: "Dépassé par une nouvelle génération de bolides ultra-rapides, le célèbre Flash McQueen est soudainement écarté de la course qu'il aime tant. Pour revenir dans la compétition, il va devoir demander l'aide d'une jeune mécanicienne.", duration: "102 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.51 GB", link: "https://1fichier.com/?ow80ze5yhku6x8zgq4ah&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-260514-cars-3", dateAdded: "2017-08-02", featured: true },
+            { id: 36, title: "Arcane", type: "serie", year: 2024, genres: ["Animation", "Action", "Science-Fiction"], poster: "Arcane.png", description: "Au milieu du conflit entre les villes jumelles de Piltover et Zaun, deux sœurs se battent dans des camps opposés d'une guerre entre technologies magiques et convictions incompatibles.", duration: "2 Saisons", language: "MULTI", quality: "HDLight/Web 1080p", size: "13.42 GB", dateAdded: "2024-11-09", featured: true, seasons: [
                 { season: 1, year: 2021, episodes: "9 épisodes", quality: "HDLight 1080p (x265)", size: "8.24 GB", link: "https://1fichier.com/?d5m5glt4jcqm83e4vns8" },
                 { season: 2, year: 2024, episodes: "9 épisodes", quality: "Web 1080p (x265)", size: "5.18 GB", link: "https://1fichier.com/?h5gc5to4sbv589inv9fg" }
             ]},
-            { id: 31, title: "Stranger Things", type: "serie", year: 2026, genres: ["Horreur", "Fantastique", "Drame"], poster: "StrangerThings.png", description: "Le phénomène culte à Hawkins. Alors que le Monde à l'envers s'infiltre dans la réalité, Onze et sa bande doivent mener l'ultime bataille contre Vecna et les mystères du laboratoire.", duration: "5 Saisons", language: "MULTI", quality: "HDLight 1080p (x265)", size: "65.4 GB", dateAdded: "2026-06-01", featured: true, seasons: [
+            { id: 37, title: "Stranger Things", type: "serie", year: 2026, genres: ["Horreur", "Fantastique", "Drame"], poster: "StrangerThings.png", description: "Le phénomène culte à Hawkins. Alors que le Monde à l'envers s'infiltre dans la réalité, Onze et sa bande doivent mener l'ultime bataille contre Vecna et les mystères du laboratoire.", duration: "5 Saisons", language: "MULTI", quality: "HDLight 1080p (x265)", size: "65.4 GB", dateAdded: "2026-06-01", featured: true, seasons: [
                 { season: 1, year: 2016, episodes: "8 épisodes", quality: "HDLight 1080p (x265) ", size: "11.18 GB", link: "https://1fichier.com/?vsuwjxjrdoqokao23tyh&af=4356241" },
                 { season: 2, year: 2017, episodes: "9 épisodes", quality: "HDLight 1080p (x265)", size: "12.90 GB", link: "https://1fichier.com/?znwf1qq35fk8vge0acc7&af=4356241" },
                 { season: 3, year: 2019, episodes: "8 épisodes", quality: "Web 1080p (x265)", size: "12.69 GB", link: "https://1fichier.com/?93wsbi9d67rwjnw6s220&af=4356241" },
                 { season: 4, year: 2022, episodes: "9 épisodes", quality: "Web 1080p", size: "33.12 GB", link: "https://1fichier.com/?vhlk1wek0d9ar8fy89si" },
                 { season: 5, year: 2026, episodes: "8 épisodes", quality: "Ultra HDLight 4K", size: "17.34 GB", link: "https://1fichier.com/?ezrcq4n9bkl2sh74n6ch&af=4356241" }
             ]},
-            { id: 32, title: "The Last of Us", type: "serie", year: 2025, genres: ["Action", "Horreur", "Drame"], poster: "TheLastOfUs.png", description: "Dans des États-Unis ravagés par l'épidémie du Cordyceps, Ellie et Joel traversent un voyage bouleversant entre survie brutale et liens humains profonds.", duration: "2 Saisons", language: "MULTI", quality: "Web 1080p (x265)", size: "16.64 GB", dateAdded: "2025-04-15", featured: true, seasons: [
+            { id: 38, title: "The Last of Us", type: "serie", year: 2025, genres: ["Action", "Horreur", "Drame"], poster: "TheLastOfUs.png", description: "Dans des États-Unis ravagés par l'épidémie du Cordyceps, Ellie et Joel traversent un voyage bouleversant entre survie brutale et liens humains profonds.", duration: "2 Saisons", language: "MULTI", quality: "Web 1080p (x265)", size: "16.64 GB", dateAdded: "2025-04-15", featured: true, seasons: [
                 { season: 1, year: 2023, episodes: "9 épisodes", quality: "Web 1080p (x265)", size: "10.59 GB", link: "https://1fichier.com/?5iw5yvoahsum2otpc92v&af=62851" },
                 { season: 2, year: 2025, episodes: "7 épisodes", quality: "Web 1080p (x265)", size: "6.05 GB", link: "https://1fichier.com/?s52bv3a1vmkrcplrrbjd&af=62851" }
             ]},
-            { id: 33, title: "Solo Leveling", type: "serie", year: 2025, genres: ["Animation", "Action", "Fantastique"], poster: "sololeveling.jpeg", description: "Sung Jinwoo, chasseur de rang E le plus faible de l'humanité, reçoit un pouvoir unique après un donjon mortel : la capacité de monter en niveau sans limite et de régner sur les ombres.", duration: "2 Saisons", language: "MULTI", quality: "HDLight 1080p (x265)", size: "11.68 GB", dateAdded: "2025-01-10", featured: true, seasons: [
+            { id: 39, title: "Solo Leveling", type: "serie", year: 2025, genres: ["Animation", "Action", "Fantastique"], poster: "sololeveling.jpeg", description: "Sung Jinwoo, chasseur de rang E le plus faible de l'humanité, reçoit un pouvoir unique après un donjon mortel : la capacité de monter en niveau sans limite et de régner sur les ombres.", duration: "2 Saisons", language: "MULTI", quality: "HDLight 1080p (x265)", size: "11.68 GB", dateAdded: "2025-01-10", featured: true, seasons: [
                 { season: 1, year: 2024, episodes: "12 épisodes", quality: "HDLight 1080p (x265)", size: "5.50 GB", link: "https://1fichier.com/?dzm7of9ovmv5ashlqtya&af=5010551" },
                 { season: 2, year: 2025, episodes: "13 épisodes", quality: "HDLight 1080p (x265)", size: "6.18 GB", link: "https://1fichier.com/?zpapean3bcxtne3fk3wf&af=5010551" }
             ]},
-            { id: 34, title: "Squid Game", type: "serie", year: 2025, genres: ["Thriller", "Drame", "Action"], poster: "squidgame.jpg", description: "Des centaines de joueurs endettés acceptent une étrange invitation à participer à des jeux pour enfants. À la clé : une somme colossale, mais l'échec est puni de mort.", duration: "2 Saisons", language: "MULTI", quality: "Ultra HDLight (x265)", size: "29.48 GB", dateAdded: "2024-12-26", featured: true, seasons: [
+            { id: 40, title: "Squid Game", type: "serie", year: 2025, genres: ["Thriller", "Drame", "Action"], poster: "squidgame.jpg", description: "Des centaines de joueurs endettés acceptent une étrange invitation à participer à des jeux pour enfants. À la clé : une somme colossale, mais l'échec est puni de mort.", duration: "2 Saisons", language: "MULTI", quality: "Ultra HDLight (x265)", size: "29.48 GB", dateAdded: "2024-12-26", featured: true, seasons: [
                 { season: 1, year: 2021, episodes: "9 épisodes", quality: "Ultra HDLight (x265)", size: "9.4 GB", link: "https://1fichier.com/?z5ih6rpwxefq84f2yyw2&af=5010551" },
                 { season: 2, year: 2024, episodes: "7 épisodes", quality: "Ultra HDLight (x265)", size: "11.06 GB", link: "https://1fichier.com/?f4i1145vtzjiocg6goue&af=2549450" },
                 { season: 3, year: 2025, episodes: "7 épisodes", quality: "Web 1080p (x265)", size: "9.02 GB", link: "https://1fichier.com/?fz1c2xcplpafznl9r74r&af=4356241" }
             ]},
-            { id: 35, title: "Breaking Bad", type: "serie", year: 2008, genres: ["Policier", "Drame", "Thriller"], poster: "breakingbad.jpg", description: "Un professeur de chimie de lycée atteint d'un cancer en phase terminale s'associe à un ancien élève pour fabriquer et vendre de la méthamphétamine afin d'assurer l'avenir financier de sa famille.", duration: "5 Saisons", language: "MULTI", quality: "Web 1080p", size: "57.9 GB", dateAdded: "2008-01-20", featured: true, seasons: [
+            { id: 41, title: "Breaking Bad", type: "serie", year: 2008, genres: ["Policier", "Drame", "Thriller"], poster: "breakingbad.jpg", description: "Un professeur de chimie de lycée atteint d'un cancer en phase terminale s'associe à un ancien élève pour fabriquer et vendre de la méthamphétamine afin d'assurer l'avenir financier de sa famille.", duration: "5 Saisons", language: "MULTI", quality: "Web 1080p", size: "57.9 GB", dateAdded: "2008-01-20", featured: true, seasons: [
                 { season: 1, year: 2008, episodes: "7 épisodes", quality: "HDLight 1080p (x265)", size: "7.50 GB", link: "https://1fichier.com/?2l3gz4hfg7e4ufb4zyyc&af=4356241" },
                 { season: 2, year: 2009, episodes: "13 épisodes", quality: "HDLight 1080p (x265)", size: "13.32 GB", link: "https://1fichier.com/?1yuq5d6mj9ydkhog4zp6&af=4356241" },
                 { season: 3, year: 2010, episodes: "13 épisodes", quality: "HDLight 1080p (x265)", size: "13.27 GB", link: "https://1fichier.com/?ukrse8d90g891c4cx9ro&af=4356241" },
                 { season: 4, year: 2011, episodes: "13 épisodes", quality: "HDLight 1080p (x265)", size: "13.23 GB", link: "https://1fichier.com/?fyomvevbye39o9d0drqq&af=4356241" },
                 { season: 5, year: 2012, episodes: "16 épisodes", quality: "HDLight 1080p (x265)", size: "7.58 GB", link: "https://1fichier.com/?t2c0e724c0ym6vtp4avn&af=4356241" }
-            ]}
+            ]},
+            { id: 42, title: "Game of Thrones", type: "serie", year: 2019, genres: ["Drame", "Fantastique", "Aventure"], poster: "gameofthrones.jpg", description: "Sur le continent de Westeros, de puissantes familles se disputent le Trône de Fer, symbole du pouvoir absolu, tandis qu'une menace ancestrale et glaciale s'éveille au-delà du Mur.", duration: "8 Saisons", language: "MULTI", quality: "HDLight 1080p (x265)", size: "138.63 GB", dateAdded: "2011-04-17", featured: true, seasons: [
+                { season: 1, year: 2011, episodes: "10 épisodes", quality: "Web 1080p", size: "29.43 GB", link: "https://1fichier.com/?yt4lcxot6uherdbrviuw&af=4250799" },
+                { season: 2, year: 2012, episodes: "10 épisodes", quality: "Web 1080p", size: "25.58 GB", link: "https://1fichier.com/?efaucejvdmkggerqbj0v&af=4250799" },
+                { season: 3, year: 2013, episodes: "10 épisodes", quality: "HDLight 1080p", size: "18.32 GB", link: "https://1fichier.com/?kdc5c2gg1ypo75t4s7rj&af=4250799" },
+                { season: 4, year: 2014, episodes: "10 épisodes", quality: "HDLight 1080p (x265)", size: "11.84 GB", link: "https://1fichier.com/?we6erxwdwwl828bjccgi&af=4356241" },
+                { season: 5, year: 2015, episodes: "10 épisodes", quality: "BLU-RAY 1080p", size: "22.60 GB", link: "https://1fichier.com/?mswmf1xt7i6makw72bdf&af=2549450" },
+                { season: 6, year: 2016, episodes: "10 épisodes", quality: "HDLight 1080p (x265)", size: "12.14 GB", link: "https://1fichier.com/?at2jd9rp3craypolwxit&af=4356241" },
+                { season: 7, year: 2017, episodes: "7 épisodes", quality: "HDLight 1080p (x265)", size: "9.48 GB", link: "https://1fichier.com/?10uyj6n3tpxejrtdlx8s&af=4356241" },
+                { season: 8, year: 2019, episodes: "6 épisodes", quality: "HDlight 1080p (x265)", size: "9.24 GB", link: "https://1fichier.com/?zesbaenpzrbugobnfayy&af=4356241" }
+            ]},
+            { id: 43, title: "L'Attaque des Titans", type: "serie", year: 2023, genres: ["Animation", "Action", "Fantastique"], poster: "attackontitan.jpg", description: "Dans un monde ravagé par des titans mangeurs d'hommes, l'humanité vit retranchée derrière d'immenses murs. Le jeune Eren Jäger se jure de tous les exterminer après avoir vu sa mère se faire dévorer sous ses yeux.", duration: "4 Saisons", language: "MULTI", quality: "BLU-RAY 1080p (x265)", size: "84.01 GB", dateAdded: "2013-04-07", featured: true, seasons: [
+                { season: 1, year: 2013, episodes: "25 épisodes", quality: "BLU-RAY 1080p (x265)", size: "27.61 GB", link: "https://1fichier.com/?cq1cbervfbqhaqduitco" },
+                { season: 2, year: 2017, episodes: "12 épisodes", quality: "BLU-RAY 1080p (x265)", size: "12.40 GB", link: "https://1fichier.com/?s895swzpwqtzdj28in83" },
+                { season: 3, year: 2018, episodes: "22 épisodes", quality: "BLU-RAY 1080p (x265)", size: "18.44 GB", link: "https://1fichier.com/?e3rxceu3ddq7fcvv3wst" },
+                { season: 4, year: 2020, episodes: "30 épisodes", quality: "BLU-RAY 1080p (x265)", size: "25.56 GB", link: "https://1fichier.com/?cn8z68gbov7x1vlk8hvb" }
+            ]},
+            { id: 44, title: "Arco", type: "film", year: 2025, genres: ["Animation", "Science-Fiction", "Aventure"], poster: "Arco.jpg", description: "En 2932, Arco, un jeune garçon de dix ans, vit dans un futur paisible. Lors de son premier voyage dans le temps, un incident le projette en 2075, où il fait la rencontre d'Iris, une petite fille de son âge.", duration: "95 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.42 GB", link: "https://1fichier.com/?jf11ig25k8pozk62f14l&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-804370-arco", dateAdded: "2025-10-15", featured: true },
+            { id: 45, title: "Vaiana : La Légende du bout du monde", type: "film", year: 2016, genres: ["Animation", "Aventure", "Comédie"], poster: "Vaiana1.jpg", description: "Depuis l'île polynésienne de Motunui, la jeune Vaiana, fille du chef, navigue en haute mer pour accomplir la quête d'ancêtres oubliés et sauver son peuple en rendant le cœur de Te Fiti.", duration: "107 min", language: "MULTI", quality: "HDLight 1080p", size: "3.45 GB", link: "https://1fichier.com/?jglpf00h4hh18mtp2s63&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-277834-vaiana-la-legende-du-bout-du-monde", dateAdded: "2016-11-30", featured: true },
+            { id: 46, title: "Vaiana 2", type: "film", year: 2024, genres: ["Animation", "Aventure", "Comédie"], poster: "Vaiana2.jpg", description: "Après avoir reçu un appel inattendu de ses ancêtres, Vaiana s'embarque pour un voyage vers les mers lointaines de l'Océanie et dans des eaux dangereuses et perdues depuis longtemps.", duration: "100 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.13 GB", link: "https://1fichier.com/?7wfzcoqm3gichobuymsb&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-1241982-vaiana-2", dateAdded: "2024-11-27", featured: true },
+            { id: 47, title: "Vaiana (Live Action)", type: "film", year: 2026, genres: ["Aventure", "Fantastique", "Famille"], poster: "VaianaLiveAction.jpg", description: "Découvrez l'adaptation en prise de vues réelles de la légende de Vaiana, qui s'embarque dans un voyage épique à travers l'océan Pacifique aux côtés du demi-dieu Maui.", duration: "115 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.07 GB", link: "https://1fichier.com/?sh6seqmuagfway7r71se&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-1108427-vaiana-la-legende-du-bout-du-monde", dateAdded: "2026-07-10", featured: true },
+            { id: 48, title: "The Amazing Spider-Man", type: "film", year: 2012, genres: ["Action", "Aventure", "Fantastique"], poster: "TheAmazingSpiderMan.jpg", description: "Abandonné par ses parents lorsqu'il était enfant, Peter Parker tente de comprendre son passé. Ses recherches le mènent au laboratoire du docteur Curt Connors, l'ancien associé de son père, où une morsure d'araignée va transformer son destin.", duration: "136 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "4 GB", link: "https://zstream.mov/media/tmdb-movie-1930-the-amazing-spider-man", dateAdded: "2012-07-03", featured: true },
+            { id: 49, title: "The Amazing Spider-Man : Le Destin d'un héros", type: "film", year: 2014, genres: ["Action", "Aventure", "Fantastique"], poster: "TheAmazingSpiderMan2.jpg", description: "Peter Parker mène une vie palpitante entre son rôle de super-héros et son histoire d'amour avec Gwen Stacy. Mais l'émergence d'Electro et le retour de son ancien ami Harry Osborn l'amènent à réaliser que tous ses ennemis ont un point commun : Oscorp.", duration: "142 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "4 GB", link: "https://zstream.mov/media/tmdb-movie-102382-the-amazing-spider-man-le-destin-dun-heros", dateAdded: "2014-04-30", featured: true },
+            { id: 50, title: "Five Nights at Freddy's", type: "film", year: 2023, genres: ["Horreur", "Épouvante", "Mystère"], poster: "FNAF.jpg", description: "Un gardien de sécurité troublé commence à travailler dans la pizzeria Freddy Fazbear. Dès sa première nuit, il réalise que le poste ne sera pas de tout repos et découvre le sombre secret des mascottes animatroniques.", duration: "110 min", language: "MULTI", quality: "HDLight 1080p", size: "3.57 GB", link: "https://1fichier.com/?8n6b3tidng0ordif1ckb&af=3456997", streamLink: "https://zstream.mov/media/tmdb-movie-507089-five-nights-at-freddys", dateAdded: "2023-10-27", featured: true },
+            { id: 51, title: "L'Odyssée", type: "film", year: 2026, genres: ["Aventure", "Drame", "Péplum"], poster: "LOdyssee.jpg", description: "L'adaptation épique du célèbre poème d'Homère retraçant le long et périlleux voyage d'Ulysse, roi d'Ithaque, tentant de regagner son royaume et de retrouver les siens après la guerre de Troie.", duration: "140 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.5 GB", link: "https://indisponnible.com", streamLink: "https://zstream.mov/media/tmdb-movie-1368337-lodyssee", dateAdded: "2026-05-20", featured: true },
+            { id: 52, title: "Spider-Man: New Generation", type: "film", year: 2018, genres: ["Animation", "Action", "Aventure"], poster: "SpiderManIntoTheSpiderVerse.jpg", description: "Miles Morales, un adolescent de Brooklyn, devient le nouveau Spider-Man de son univers et doit faire équipe avec cinq autres héros venus de dimensions parallèles pour stopper une menace globale.", duration: "117 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "4.22 GB", link: "https://1fichier.com/?l6vu8bi3ojpcyfjru07j&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-324857-spider-man-new-generation", dateAdded: "2018-12-12", featured: true },
+            { id: 53, title: "Spider-Man: Across the Spider-Verse", type: "film", year: 2023, genres: ["Animation", "Action", "Aventure"], poster: "SpiderManAcrossTheSpiderVerse.jpg", description: "Propulsé à travers le Multivers, Miles Morales y rencontre une équipe de Spider-Héros chargée d'en protéger l'existence. Mais face à une nouvelle menace, Miles doit redéfinir ce que signifie être un héros.", duration: "140 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "4.70 GB", link: "https://1fichier.com/?wa4dbq3wpwpi7p7mzzh2&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-569094-spider-man-across-the-spider-verse", dateAdded: "2023-05-31", featured: true },
+            { id: 54, title: "Les SEGPA", type: "film", year: 2022, genres: ["Comédie"], poster: "LesSEGPA.jpg", description: "Les SEGPA se font renvoyer de leur collège. Ils intègrent alors le prestigieux collège Franklin D. Roosevelt. Le principal, peu ravi de voir arriver ces nouveaux élèves, décide de les ranger dans une classe à part : la 3ème option D.", duration: "99 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.5 GB", link: "non disponibles", streamLink: "https://zstream.mov/media/tmdb-movie-922705-les-segpa", dateAdded: "2022-04-20", featured: true },
+            { id: 55, title: "Les SEGPA au ski", type: "film", year: 2023, genres: ["Comédie"], poster: "LesSEGPAAuSki.jpg", description: "La bande de SEGPA se retrouve pour de nouvelles aventures à la montagne lors d'un séjour au ski hilarant où rien ne va se passer comme prévu.", duration: "102 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.5 GB", link: "indisponnible", streamLink: "https://zstream.mov/media/tmdb-movie-1098987-les-segpa-au-ski", dateAdded: "2023-12-27", featured: true },
+            { id: 56, title: "Obsession", type: "film", year: 2026, genres: ["Horreur", "Thriller", "Fantastique"], poster: "Obsession.webp", backdrop: "ObsessionBack.png", description: "Un jeune introverti met la main sur un objet magique capable d'exaucer n'importe quel souhait. Son coup de foudre de toujours tombe alors raide dingue de lui, mais la situation bascule rapidement jusqu'à l'obsession la plus totale.", duration: "108 min", language: "MULTI", quality: "Ultra HDLight (x265)", size: "4.34 GB", link: "https://1fichier.com/?kkwp728e9l62859jk77q&af=5010551", streamLink: "https://zstream.mov/media/tmdb-movie-1339713-obsession", dateAdded: "2026-05-13", featured: true },
+            { id: 57, title: "Monstres Academy", type: "film", year: 2013, genres: ["Animation", "Comédie", "Famille"], poster: "MonstresAcademy.jpg", description: "Avant de devenir inséparables, Bob Razowski et James P. Sullivan ne se supportaient pas. Découvrez comment ces deux monstres que tout oppose ont appris à surmonter leurs différences pour devenir les meilleurs terreurs de la Monstre & Cie.", duration: "104 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "3.40 GB", link: "https://1fichier.com/?0doad5mj9v4gcdmw0vm2&af=5010551", streamLink: "https://tfx05.lol/watch/film/af0ed631a8d46528f4ce4c9092e847344d0a34e1e9a25419", dateAdded: "2013-07-10", featured: true }
+
+
+
+
+
         ];
 
-        const MOVIES_VERSION = '2026-07-12-v5';
+        const MOVIES_VERSION = '2026-07-50-v6';
         let moviesData;
         if (localStorage.getItem('zenflix_movies_version') !== MOVIES_VERSION) {
             moviesData = defaultMovies;
@@ -725,7 +811,7 @@
             const heroHTML = hero ? `
             <div class="home-hero">
                 <div class="hero-backdrop">
-                    <img src="${hero.id === 1 ? 'ObsessionBack.png' : (hero.backdrop || hero.poster)}" alt="${esc(hero.title)}" class="hero-bg-img" onerror="this.src='${hero.poster}'">
+                    <img src="${hero.id === 1 ? 'SpiderManBrandNewDayBack.png' : (hero.backdrop || hero.poster)}" alt="${esc(hero.title)}" class="hero-bg-img" onerror="this.src='${hero.poster}'">
                     <div class="hero-overlay"></div>
                 </div>
                 <div class="hero-content">
@@ -752,21 +838,63 @@
                 </div>
             </div>` : '';
 
-            // Categories definition
-            const top10List = [
-                ...moviesData.filter(m => [1, 30, 8, 31, 29, 5, 2, 33, 3, 34].includes(m.id)),
-                ...moviesData
-            ].filter((v, i, a) => a.findIndex(t => t.id === v.id) === i).slice(0, 10);
+            // === NOUVELLE LOGIQUE AVEC home-config.js (contrôle par IDs) ===
+            const config = window.HOME_CONFIG || {
+                top10Ids: [1, 5, 4, 6, 21, 8, 28, 36, 37, 38],
+                categories: []
+            };
 
-            const categories = [
-                { title: "Top 10 du moment", icon: '<i class="fas fa-fire category-icon"></i>', items: top10List, isTop10: true },
-                { title: "Nouveautés 2026", icon: '<i class="fas fa-bolt category-icon"></i>', items: moviesData.filter(m => m.year >= 2025) },
-                { title: "Séries Incontournables", icon: '<i class="fas fa-tv category-icon"></i>', items: moviesData.filter(m => m.type === 'serie') },
-                { title: "Comédie & Humour", icon: '<i class="fas fa-laugh-beam category-icon"></i>', items: moviesData.filter(m => (m.genres || []).some(g => g.includes("Comédie") || g.includes("Parodie") || g.includes("Humour"))) },
-                { title: "Animation & Famille", icon: '<i class="fas fa-film category-icon"></i>', items: moviesData.filter(m => (m.genres || []).some(g => g.includes("Animation") || g.includes("Famille"))) },
-                { title: "Action & Aventure", icon: '<i class="fas fa-compass category-icon"></i>', items: moviesData.filter(m => (m.genres || []).some(g => g.includes("Action") || g.includes("Aventure"))) },
-                { title: "Horreur, Sci-Fi & Thriller", icon: '<i class="fas fa-ghost category-icon"></i>', items: moviesData.filter(m => (m.genres || []).some(g => g.includes("Horreur") || g.includes("Science-Fiction") || g.includes("Thriller"))) }
-            ];
+            // Fonction utilitaire pour récupérer des films par liste d'IDs
+            function getMoviesByIds(ids) {
+                if (!ids || !Array.isArray(ids)) return [];
+                return ids
+                    .map(id => moviesData.find(m => m.id === id))
+                    .filter(Boolean);
+            }
+
+            // Générer les catégories dynamiquement depuis HOME_CONFIG
+            let categories = [];
+
+            if (config.categories && config.categories.length > 0) {
+                categories = config.categories.map(cat => {
+                    let items = [];
+
+                    if (cat.type === "ids" && cat.ids) {
+                        // Contrôle par IDs (comme Top 10)
+                        items = getMoviesByIds(cat.ids);
+                    } 
+                    else if (cat.type === "filter" && typeof cat.filter === "function") {
+                        // Filtre dynamique (uniquement pour Nouveautés 2026)
+                        items = moviesData.filter(cat.filter);
+                    } 
+                    else if (cat.type === "top10") {
+                        // Compatibilité ancienne
+                        items = getMoviesByIds(config.top10Ids || []);
+                    }
+
+                    return {
+                        title: cat.title,
+                        icon: cat.icon,
+                        items: items,
+                        isTop10: cat.id === "top10"
+                    };
+                });
+            } else {
+                // Fallback si home-config.js n'est pas chargé
+                categories = [
+                    { 
+                        title: "Top 10 du moment", 
+                        icon: '<i class="fas fa-fire category-icon"></i>', 
+                        items: getMoviesByIds(config.top10Ids || []), 
+                        isTop10: true 
+                    },
+                    { 
+                        title: "Nouveautés 2026", 
+                        icon: '<i class="fas fa-bolt category-icon"></i>', 
+                        items: moviesData.filter(m => m.year === 2026) 
+                    }
+                ];
+            }
 
             const categoriesHTML = categories.filter(c => c.items.length > 0).map(c => `
             <div class="category-row">
@@ -863,6 +991,8 @@
             
             let downloadOrSeasonsHTML = '';
             if (m.type === 'serie' && m.seasons && m.seasons.length > 0) {
+                // Check if any season has a streamLink
+                const hasStream = m.seasons.some(s => s.streamLink);
                 downloadOrSeasonsHTML = `
                 <div class="seasons-container">
                     <h3 class="seasons-header-title"><i class="fas fa-list-ul" style="color:var(--accent);"></i> Saisons disponibles (${m.seasons.length})</h3>
@@ -896,7 +1026,11 @@
                     </div>
                 </div>`;
             } else {
-                downloadOrSeasonsHTML = '<button class="reveal-btn" onclick="revealLink(' + m.id + ')"><i class="fas fa-download"></i> Télécharger le film</button>';
+                let btns = '<button class="reveal-btn" onclick="revealLink(' + m.id + ')"><i class="fas fa-download"></i> Télécharger le film</button>';
+                if (m.streamLink) {
+                    btns += '<button class="reveal-btn stream-btn" onclick="streamFilm(' + m.id + ')" style="margin-top:0.8rem;background:#1a6dd4;"><i class="fas fa-play"></i> Regarder en streaming</button>';
+                }
+                downloadOrSeasonsHTML = btns;
             }
 
             document.getElementById('filmDetailContent').innerHTML = '<div class="film-detail-content"><img src="' + m.poster + '" alt="' + esc(m.title) + '" class="film-poster-large" onerror="this.style.background=\'#1a1a1a\'"><div class="film-info-detailed"><h1 class="film-title-large">' + esc(m.title) + '</h1><div class="film-meta-large"><span><i class="far fa-calendar-alt"></i> ' + m.year + '</span><span><i class="far fa-clock"></i> ' + m.duration + '</span><span><i class="fas fa-video"></i> ' + m.quality + '</span><span><i class="fas fa-database"></i> ' + m.size + '</span></div><p class="film-description">' + m.description + '</p><div class="film-card-genres" style="margin-bottom:2rem;">' + (m.genres || []).map(g => '<span class="film-card-genre">' + g + '</span>').join('') + '</div><div class="film-technical-info"><h3>Informations techniques</h3><div class="tech-info-item"><span class="tech-label"><i class="fas fa-language"></i> Langue</span><span class="tech-value">' + m.language + '</span></div><div class="tech-info-item"><span class="tech-label"><i class="fas fa-film"></i> Qualité</span><span class="tech-value">' + m.quality + '</span></div><div class="tech-info-item"><span class="tech-label"><i class="fas fa-hdd"></i> Taille</span><span class="tech-value">' + m.size + '</span></div><div class="tech-info-item"><span class="tech-label"><i class="far fa-calendar-plus"></i> Ajouté le</span><span class="tech-value">' + fmtDate(m.dateAdded) + '</span></div></div>' + downloadOrSeasonsHTML + adminDel + '</div></div>';
@@ -928,6 +1062,99 @@
                 showToast("Le lien sera disponible très bientôt !", "info");
             }
         }
+
+        function streamFilm(id) {
+            if (!currentUser) {
+                showToast("Connexion requise pour streamer ce contenu.", "info");
+                openAuthModal();
+                return;
+            }
+            const m = moviesData.find(x => x.id === id);
+            if (m?.streamLink) {
+                const page = document.getElementById('streamPage');
+                const iframe = document.getElementById('streamIframe');
+                document.getElementById('streamTitle').textContent = m.title;
+                
+                console.log('[ZenFlix] Streaming:', m.title);
+                
+                // Charger le lien dans l'iframe
+                iframe.src = '';
+                iframe.src = m.streamLink;
+                
+                // Affiche la page
+                page.classList.add('active');
+                document.querySelector('.navbar').style.display = 'none';
+                document.querySelector('.footer').style.display = 'none';
+                document.body.style.overflow = 'hidden';
+                page.classList.add('show-ui');
+                document.getElementById('streamLoading').classList.add('active');
+                document.getElementById('streamShowBtn').classList.remove('active');
+                
+                // Cache le loading après 3s
+                setTimeout(() => {
+                    document.getElementById('streamLoading').classList.remove('active');
+                }, 3000);
+                
+                // Après 5s d'inactivité, on cache l'UI
+                resetStreamUITimer();
+                
+                // Mousemove = activité → montre l'UI et reset le timer
+                page.onmousemove = function() {
+                    page.classList.add('show-ui');
+                    document.getElementById('streamShowBtn').classList.remove('active');
+                    resetStreamUITimer();
+                };
+                
+                showToast("Chargement du player...", "success");
+            } else {
+                showToast("Lien de streaming non disponible.", "info");
+            }
+        }
+
+        function resetStreamUITimer() {
+            clearTimeout(ctrlTimer);
+            ctrlTimer = setTimeout(function() {
+                const page = document.getElementById('streamPage');
+                if (page.classList.contains('active')) {
+                    page.classList.remove('show-ui');
+                    document.getElementById('streamShowBtn').classList.add('active');
+                }
+            }, 5000);
+        }
+
+        function showStreamUI() {
+            const page = document.getElementById('streamPage');
+            page.classList.add('show-ui');
+            document.getElementById('streamShowBtn').classList.remove('active');
+            resetStreamUITimer();
+        }
+
+        function exitStream() {
+            const page = document.getElementById('streamPage');
+            const iframe = document.getElementById('streamIframe');
+            iframe.src = '';
+            page.classList.remove('active');
+            document.querySelector('.navbar').style.display = '';
+            document.querySelector('.footer').style.display = '';
+            document.body.style.overflow = '';
+            document.getElementById('streamLoading').classList.remove('active');
+            document.getElementById('streamFsIcon').className = 'fas fa-expand';
+            document.getElementById('streamShowBtn').classList.remove('active');
+            page.onmousemove = null;
+            clearTimeout(ctrlTimer);
+        }
+
+        function toggleStreamFullscreen() {
+            const el = document.getElementById('streamPage');
+            if (!document.fullscreenElement) el.requestFullscreen().catch(() => {});
+            else document.exitFullscreen().catch(() => {});
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('streamFsIcon');
+            if (icon) icon.className = document.fullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
+        });
+
         function goBack() { showPage(window._lastOpenedType === 'serie' ? 'series' : 'films'); }
 
         function searchFilm() {
@@ -945,6 +1172,11 @@
             const el = document.getElementById('filmsResults');
             const films = moviesData.filter(m => m.type !== 'serie');
             if (filter === 'all') { displayMoviesList(); return; }
+            if (filter === 'streaming') {
+                const results = films.filter(m => m.streamLink);
+                el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucun film disponible en streaming.</p>';
+                return;
+            }
             const results = films.filter(m => m.language === filter || (m.quality || '').includes(filter));
             el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucun film.</p>';
         }
@@ -964,6 +1196,11 @@
             const el = document.getElementById('seriesResults');
             const series = moviesData.filter(m => m.type === 'serie');
             if (filter === 'all') { displaySeriesList(); return; }
+            if (filter === 'streaming') {
+                const results = series.filter(m => m.streamLink || (m.seasons && m.seasons.some(s => s.streamLink)));
+                el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucune série disponible en streaming.</p>';
+                return;
+            }
             const results = series.filter(m => m.language === filter || (m.quality || '').includes(filter));
             el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucune série trouvée.</p>';
         }
@@ -1085,6 +1322,8 @@
         window.deleteMovie = deleteMovie;
         window.showFilmDetail = showFilmDetail;
         window.revealLink = revealLink;
+        window.streamFilm = streamFilm;
+        window.exitStream = exitStream;
         window.goBack = goBack;
         window.searchFilm = searchFilm;
         window.filterFilms = filterFilms;
@@ -1099,6 +1338,8 @@
         window.deleteSug = deleteSug;
         window.showForgotPassword = showForgotPassword;
         window.closeForgotModal = closeForgotModal;
+        window.toggleStreamFullscreen = toggleStreamFullscreen;
+        window.showStreamUI = showStreamUI;
 
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', () => {
@@ -1127,12 +1368,18 @@
                 e.preventDefault();
                 if (!currentUser?.isAdmin) return;
                 const genres = document.getElementById('movieGenres').value.split(',').map(g => g.trim()).filter(g => g);
-                const movie = { id: Date.now(), title: document.getElementById('movieTitle').value.trim(), year: parseInt(document.getElementById('movieYear').value), genres, poster: document.getElementById('moviePoster').value.trim() || '', description: document.getElementById('movieDescription').value.trim(), duration: document.getElementById('movieDuration').value.trim() || 'N/A', language: document.getElementById('movieLanguage').value, quality: document.getElementById('movieQuality').value.trim(), size: document.getElementById('movieSize').value.trim() || 'N/A', link: document.getElementById('movieLink').value.trim() || '#', dateAdded: new Date().toISOString().split('T')[0], featured: document.getElementById('movieFeatured').checked };
+                const streamLink = document.getElementById('movieStreamLink').value.trim() || undefined;
+                const movie = { id: Date.now(), title: document.getElementById('movieTitle').value.trim(), year: parseInt(document.getElementById('movieYear').value), genres, poster: document.getElementById('moviePoster').value.trim() || '', description: document.getElementById('movieDescription').value.trim(), duration: document.getElementById('movieDuration').value.trim() || 'N/A', language: document.getElementById('movieLanguage').value, quality: document.getElementById('movieQuality').value.trim(), size: document.getElementById('movieSize').value.trim() || 'N/A', link: document.getElementById('movieLink').value.trim() || '#', streamLink: streamLink, dateAdded: new Date().toISOString().split('T')[0], featured: document.getElementById('movieFeatured').checked };
                 moviesData.unshift(movie); localStorage.setItem('zenflix_movies', JSON.stringify(moviesData));
                 closeAddMovieModal(); showToast("Film ajouté au catalogue !", "success"); displayMoviesList();
             });
 
             document.querySelector('.navbar') && window.addEventListener('scroll', () => document.querySelector('.navbar').classList.toggle('scrolled', window.pageYOffset > 50));
+
+            // Fermeture du player en cliquant sur le fond
+            document.getElementById('streamPage')?.addEventListener('click', e => {
+                if (e.target === document.getElementById('streamPage')) exitStream();
+            });
 
             ['authModal', 'accountModal', 'addMovieModal', 'forgotModal'].forEach(id => {
                 const modal = document.getElementById(id);
@@ -1140,7 +1387,10 @@
             });
 
             document.addEventListener('keydown', e => {
-                if (e.key === 'Escape') ['searchOverlay', 'authModal', 'accountModal', 'addMovieModal', 'forgotModal'].forEach(id => { const el = document.getElementById(id); if (el?.classList.contains('active')) { el.classList.remove('active'); if (id === 'authModal') { document.getElementById('authForm').reset(); switchAuthTab('login'); } } });
+                if (e.key === 'Escape') {
+                    if (document.getElementById('streamPage')?.classList.contains('active')) { exitStream(); return; }
+                    ['searchOverlay', 'authModal', 'accountModal', 'addMovieModal', 'forgotModal'].forEach(id => { const el = document.getElementById(id); if (el?.classList.contains('active')) { el.classList.remove('active'); if (id === 'authModal') { document.getElementById('authForm').reset(); switchAuthTab('login'); } } });
+                }
             });
 
             sb.auth.onAuthStateChange((event, session) => {
@@ -1149,9 +1399,10 @@
                 else if (event === 'SIGNED_IN' && session?.user) checkSession();
             });
 
+            
             fetchSuggestions();
             renderHomePage();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1691cf77bfdd0bf',t:'MTc4MzI4MzI3NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1691cf77bfdd0bf',t:'MTc4MzI4MzI3NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a178dc230bb3d108',t:'MTc4MzQ0ODM5Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a18142944aeffa77',t:'MTc4MzUzNjQ3NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2376bf6badc3a77',t:'MTc4NTQ0NjU3Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

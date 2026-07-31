@@ -1024,6 +1024,242 @@ body {
 }
 .film-card-btn:hover { background: var(--accent-hover); box-shadow: 0 6px 18px rgba(229, 9, 20, 0.35); }
 
+/* =========================================
+   STREAM PAGE - FULLSCREEN VIDEO PLAYER
+   ========================================= */
+.stream-page {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    display: none;
+    overflow: hidden;
+}
+.stream-page.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.stream-bg {
+    position: absolute;
+    inset: 0;
+    background: #000;
+}
+
+/* IFRAME - plein écran */
+.stream-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #000;
+    z-index: 10;
+}
+
+/* TOP BAR - overlaid on iframe */
+.stream-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.2rem;
+    background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.stream-page.show-ui .stream-top {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.stream-top-left {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+.stream-btn-back {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+}
+.stream-btn-back:hover {
+    background: var(--accent);
+}
+
+.stream-top-divider {
+    width: 1px;
+    height: 24px;
+    background: rgba(255,255,255,0.2);
+}
+
+.stream-top-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    max-width: 350px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.stream-top-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.stream-btn-icon {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+}
+.stream-btn-icon:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* LOADING OVERLAY */
+.stream-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1.5rem;
+    z-index: 50;
+    background: #000;
+}
+.stream-loading.active {
+    display: flex;
+}
+.stream-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spinAnim 0.7s linear infinite;
+}
+@keyframes spinAnim {
+    to { transform: rotate(360deg); }
+}
+.stream-loading-text {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Floating show-controls button */
+.stream-show-btn {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 90;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 1.1rem;
+}
+.stream-show-btn.active {
+    display: flex;
+}
+.stream-show-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateX(-50%) scale(1.1);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .stream-top {
+        padding: 0.7rem 0.8rem;
+    }
+    .stream-top-title {
+        font-size: 0.85rem;
+        max-width: 150px;
+    }
+    .stream-btn-back, .stream-btn-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Streaming badge on card */
+.streaming-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #1a6dd4;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    z-index: 12;
+    box-shadow: 0 2px 8px rgba(26, 109, 212, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    animation: pulse-stream 2s ease-in-out infinite;
+}
+@keyframes pulse-stream {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(26, 109, 212, 0.6); }
+    50% { box-shadow: 0 0 0 8px rgba(26, 109, 212, 0); }
+}
+
+/* Stream button in detail page */
+.stream-btn:hover {
+    background: #2180e8 !important;
+    box-shadow: 0 10px 30px rgba(26, 109, 212, 0.4) !important;
+    transform: translateY(-2px);
+}
+
+/* Streaming filter button active state */
+.filter-btn i.fa-play {
+    margin-right: 0.3rem;
+    font-size: 0.75rem;
+}
+
 /* Delete film button on card */
 .film-delete-btn {
     position: absolute;
@@ -1103,12 +1339,70 @@ body {
 .suggestions-header { text-align: center; margin-bottom: 4rem; }
 .suggestions-title { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; }
 .suggestions-subtitle { font-size: 1.1rem; color: var(--text-secondary); }
-.suggestions-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
-.suggestion-form-container, .suggestions-list-container {
+/* ========================
+   SUGGESTIONS - EQUAL HEIGHT + SCROLL
+   ======================== */
+.suggestions-content { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 4rem; 
+    align-items: stretch; 
+}
+
+/* Both containers have the exact same height - CLEAN & PROFESSIONAL */
+.suggestion-form-container, 
+.suggestions-list-container {
     background: var(--bg-secondary);
-    padding: 3rem;
-    border-radius: 8px;
+    padding: 2.6rem 3rem;
+    border-radius: 16px;
     border: 1px solid var(--border);
+    height: 780px;                    /* Balanced, elegant height */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Suggestions list: scrollable */
+.suggestions-list-container {
+    overflow-y: auto !important;
+}
+
+/* Form styling - clean & premium when container is taller */
+.suggestion-form-container form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+}
+
+.suggestion-form-container .form-group {
+    margin-bottom: 0;
+}
+
+.suggestion-form-container .form-group:last-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.suggestion-form-container label {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+    color: var(--text-secondary);
+}
+
+.suggestion-form-container input,
+.suggestion-form-container select,
+.suggestion-form-container textarea {
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 10px;
+}
+
+.suggestion-form-container textarea {
+    flex: 1;
+    min-height: 160px;
+    resize: vertical;
 }
 .suggestions-list-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; }
 
