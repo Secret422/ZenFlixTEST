@@ -366,7 +366,7 @@
             </div>
             <div class="stream-top-right">
                 <button class="stream-btn-icon" onclick="toggleStreamFullscreen()" id="streamFsBtn" title="Plein écran">
-                    <i class="fas fa-expand"></i>
+                    <i id="streamFsIcon" class="fas fa-expand"></i>
                 </button>
             </div>
         </div>
@@ -441,16 +441,111 @@
             { id: 33, title: "Cars", type: "film", year: 2006, genres: ["Animation", "Comédie", "Aventure"], poster: "Cars1.jpeg", description: "Flash McQueen, une splendide voiture de course promise au succès, se retrouve perdue au beau milieu de la mythique Route 66 et découvre que la vie ne se résume pas à franchir la ligne d'arrivée.", duration: "116 min", language: "MULTI", quality: "HDLight 1080p", size: "3.80 GB", link: "https://1fichier.com/?f68uzblbhj7w5cmftdao&af=5010551", streamLink: "https://tfx05.lol/watch/film/ab491baaf52302d9d030011bb0f4525d73f362f8c1616c7a", dateAdded: "2006-06-14", featured: true },
             { id: 34, title: "Cars 2", type: "film", year: 2011, genres: ["Animation", "Comédie", "Espionnage"], poster: "Cars2.jpeg", description: "Flash McQueen et son fidèle ami Martin s'envolent pour l'Europe et l'Asie afin de disputer le tout premier Grand Prix Mondial. Mais la route vers le titre est semée d'embûches et d'espionnage international.", duration: "106 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "4.12 GB", link: "https://1fichier.com/?j77j4kkbl21fankdvewa&af=5010551", streamLink: "https://tfx05.lol/watch/film/ec81482189b422a5d2815bb07139cae2d0d9a1a9da1cf812", dateAdded: "2011-07-27", featured: true },
             { id: 35, title: "Cars 3", type: "film", year: 2017, genres: ["Animation", "Comédie", "Drame"], poster: "Cars3.jpeg", description: "Dépassé par une nouvelle génération de bolides ultra-rapides, le célèbre Flash McQueen est soudainement écarté de la course qu'il aime tant. Pour revenir dans la compétition, il va devoir demander l'aide d'une jeune mécanicienne.", duration: "102 min", language: "MULTI", quality: "HDLight 1080p (x265)", size: "2.51 GB", link: "https://1fichier.com/?ow80ze5yhku6x8zgq4ah&af=5010551", streamLink: "https://tfx05.lol/watch/film/ff377fa228f198e126a3dd42b9c831995fd67630ba4bd714", dateAdded: "2017-08-02", featured: true },
+            // ====================================================================
+            //  ★★★ SÉRIES : COMMENT AJOUTER LES LIENS DE CHAQUE ÉPISODE ★★★
+            // ====================================================================
+            //  Chaque saison d'une série accepte :
+            //    • link        → lien de TÉLÉCHARGEMENT de la SAISON ENTIÈRE (pack)
+            //    • streamLink  → lien de STREAMING de la saison (optionnel)
+            //    • episodesData→ tableau de liens PAR ÉPISODE (optionnel) :
+            //        { ep: 1, link: "...", streamLink: "..." }
+            //
+            //  EXEMPLE À COPIER-COLLER :
+            //  seasons: [
+            //      { season: 1, year: 2021, episodes: "9 épisodes",
+            //        quality: "HDLight 1080p (x265)", size: "8.24 GB",
+            //        link: "https://1fichier.com/?PACK_SAISON_COMPLETE",
+            //        streamLink: "https://tfx05.lol/watch/... (optionnel)",
+            //        episodesData: [
+            //            { ep: 1, link: "https://1fichier.com/?EPISODE_1", streamLink: "https://tfx05.lol/watch/...episode1" },
+            //            { ep: 2, link: "https://1fichier.com/?EPISODE_2", streamLink: "https://tfx05.lol/watch/...episode2" },
+            //            // ... un objet par épisode
+            //        ]
+            //      }
+            //  ]
+            //
+            //  PRIORITÉ des liens pour chaque épisode :
+            //    Téléchargement : lien de l'épisode → lien de la saison → lien de la série
+            //    Streaming      : streamLink de l'épisode → streamLink de la saison → streamLink de la série
+            //  → Si aucun lien n'existe pour un épisode, un message s'affiche à la place.
+            // ====================================================================
             { id: 36, title: "Arcane", type: "serie", year: 2024, genres: ["Animation", "Action", "Science-Fiction"], poster: "Arcane.png", description: "Au milieu du conflit entre les villes jumelles de Piltover et Zaun, deux sœurs se battent dans des camps opposés d'une guerre entre technologies magiques et convictions incompatibles.", duration: "2 Saisons", language: "MULTI", quality: "HDLight/Web 1080p", size: "13.42 GB", dateAdded: "2024-11-09", featured: true, seasons: [
-                { season: 1, year: 2021, episodes: "9 épisodes", quality: "HDLight 1080p (x265)", size: "8.24 GB", link: "https://1fichier.com/?d5m5glt4jcqm83e4vns8" },
-                { season: 2, year: 2024, episodes: "9 épisodes", quality: "Web 1080p (x265)", size: "5.18 GB", link: "https://1fichier.com/?h5gc5to4sbv589inv9fg" }
+                { season: 1, year: 2021, episodes: "9 épisodes", quality: "HDLight 1080p (x265)", size: "8.24 GB", link: "https://1fichier.com/?d5m5glt4jcqm83e4vns8", episodesData: [
+                    { ep: 1, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/ba23dcb9e15dd04c221f50733a62f028e14ca9c2fbd80db5" },
+                    { ep: 2, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/1f0f5e87fcd1120cce26af3cb0b201f59a0ac4b65ee8fa09" },
+                    { ep: 3, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/37d8076d013788d84cd431abd2c4e4e80b415fd68969e738" },
+                    { ep: 4, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/e1ff3252f1a83a1b1ba1caf68af1d4dea9578e34a5e675d1" },
+                    { ep: 5, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/3af20cddce9428d8a365c324256604dac94d7dbe5c890cda" },
+                    { ep: 6, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/9a92d92ec95fb8b8c9097834a22e5193dc07c6db46a31cd8" },
+                    { ep: 7, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/f2ad735396de659cd24f56ebbccf4fa9e21c2e3972410714" },
+                    { ep: 8, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/c582048cc7e76baa0cb6a46a1eaa912b578b49d461e27ac8" },
+                    { ep: 9, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/1279316ac3936fa7e13de6f552cfa8a6bac560ff0a940531" }
+                ] },
+                { season: 2, year: 2024, episodes: "9 épisodes", quality: "Web 1080p (x265)", size: "5.18 GB", link: "https://1fichier.com/?h5gc5to4sbv589inv9fg", episodesData: [
+                    { ep: 1, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/ed04da2f83bd9524714daf8e4939ebca408514e4ec61aec6" },
+                    { ep: 2, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/647646219efe4867f8dd76f4b769fb9ef4043899bf1ca0ac" },
+                    { ep: 3, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/56b2fcd03733524ec5960846d8c395f58a37b81df8572dad" },
+                    { ep: 4, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/b807c0f62ce49a106add1319ae5a49decfbc97a382378ae3" },
+                    { ep: 5, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/058e73b5f2b10f30eb25961abddffb720a101ff90b4a41d9" },
+                    { ep: 6, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/e18aa4bde262faf4f68d96e9611e39e265f5ccfaa68c7d68" },
+                    { ep: 7, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/0fa4a6386f673e9170b0098578df7b695be5e9fb6642ce44" },
+                    { ep: 8, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/cbd417bae7abd8e1e4ecb8d6d7a2843a03c38e69da33e454" },
+                    { ep: 9, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/25990627f92e59def54af380ad72f68692b7488c3def5ad2" }
+                ] }
             ]},
             { id: 37, title: "Stranger Things", type: "serie", year: 2026, genres: ["Horreur", "Fantastique", "Drame"], poster: "StrangerThings.png", description: "Le phénomène culte à Hawkins. Alors que le Monde à l'envers s'infiltre dans la réalité, Onze et sa bande doivent mener l'ultime bataille contre Vecna et les mystères du laboratoire.", duration: "5 Saisons", language: "MULTI", quality: "HDLight 1080p (x265)", size: "65.4 GB", dateAdded: "2026-06-01", featured: true, seasons: [
-                { season: 1, year: 2016, episodes: "8 épisodes", quality: "HDLight 1080p (x265) ", size: "11.18 GB", link: "https://1fichier.com/?vsuwjxjrdoqokao23tyh&af=4356241" },
-                { season: 2, year: 2017, episodes: "9 épisodes", quality: "HDLight 1080p (x265)", size: "12.90 GB", link: "https://1fichier.com/?znwf1qq35fk8vge0acc7&af=4356241" },
-                { season: 3, year: 2019, episodes: "8 épisodes", quality: "Web 1080p (x265)", size: "12.69 GB", link: "https://1fichier.com/?93wsbi9d67rwjnw6s220&af=4356241" },
-                { season: 4, year: 2022, episodes: "9 épisodes", quality: "Web 1080p", size: "33.12 GB", link: "https://1fichier.com/?vhlk1wek0d9ar8fy89si" },
-                { season: 5, year: 2026, episodes: "8 épisodes", quality: "Ultra HDLight 4K", size: "17.34 GB", link: "https://1fichier.com/?ezrcq4n9bkl2sh74n6ch&af=4356241" }
+                { season: 1, year: 2016, episodes: "8 épisodes", quality: "HDLight 1080p (x265) ", size: "11.18 GB", link: "https://1fichier.com/?vsuwjxjrdoqokao23tyh&af=4356241", episodesData: [
+                    { ep: 1, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/d4a4d2e491403dd43754facd606d6a6947c5a7d13b6c70ea" },
+                    { ep: 2, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/cea3d4cfcd9e0fde2d885dd1cba5ad8981dadef9bd87efd7" },
+                    { ep: 3, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/9b3cc3f0c830417f68523fc1d3b3526b09d53d07cfcd42f5" },
+                    { ep: 4, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/1d553e8e1e61575204bd6f597af50f51d465125dd6abc087" },
+                    { ep: 5, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/bdbd78d1d34148ba8e9b1cdaf761642f6574004c16d8406a" },
+                    { ep: 6, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/834b6e51c3f40ac7b84dddb8f036040d144db092f793a2ec" },
+                    { ep: 7, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/e8f5c2ca071a2d6f4dbbf89a39ffcb5068e349de4749f5c0" },
+                    { ep: 8, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/c239b5c27598dd2fe15aa1a06234607209b398038d3df53d" }
+                ] },
+                { season: 2, year: 2017, episodes: "9 épisodes", quality: "HDLight 1080p (x265)", size: "12.90 GB", link: "https://1fichier.com/?znwf1qq35fk8vge0acc7&af=4356241", episodesData: [
+                    { ep: 1, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/d580b360c932e4babcc34c2ef5a179c6e271d7e1eb9148e6" },
+                    { ep: 2, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/4318ab804b1e872ebad231c9cf4a4da43969d6f0136da2e5" },
+                    { ep: 3, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/78c72ccdb8098bd93b551bcad023963a2010351585ee0e2e" },
+                    { ep: 4, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/c5b7ba9fe952b083f51cd05a2610a6a9e72b27cc5fe7ca06" },
+                    { ep: 5, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/afee2a93c224f6d727e9ab142b6e08b6e88b007bd13dd5c4" },
+                    { ep: 6, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/951cce9259f9e1c8ed3989c6af56f79645f83288b0dd37c6" },
+                    { ep: 7, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/c1af1f776d2c527ccd52de56c5fd66a7e35574d6078f15c5" },
+                    { ep: 8, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/0956fa02f6e53057464059fe3bf5153f9f2855bff609ad50" },
+                    { ep: 9, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/fe4ec0fba1be2df8118290bea9b998fee8b9388ff2a21331" }
+                ] },
+                { season: 3, year: 2019, episodes: "8 épisodes", quality: "Web 1080p (x265)", size: "12.69 GB", link: "https://1fichier.com/?93wsbi9d67rwjnw6s220&af=4356241", episodesData: [
+                    { ep: 1, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/0e13971cce6efa9f57e7680db30a1286db98cf3196d95112" },
+                    { ep: 2, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/ea965ed9275c04325c0a32ed0e538d9a1d6c2fa46a663a14" },
+                    { ep: 3, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/fbd20a332c800315a2e6e0f3fa083421ffe257ea93876e1c" },
+                    { ep: 4, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/0d8717610666ecddaa9f7f29cb613bfc428227204b47ce7b" },
+                    { ep: 5, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/1ac5bcc0fedf3c0630f38d7677b4b4009f254af1c20c3a7d" },
+                    { ep: 6, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/e456fb48eed49370c8ba41445a7c577af8b82579017a6095" },
+                    { ep: 7, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/4a7349033fb255a64476980bba233a4715a6ecee7bd4a90b" },
+                    { ep: 8, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/3ffc286a49ef8e504a3331a6c560f2d25e2f71c136140ec1" }
+                ] },
+                { season: 4, year: 2022, episodes: "9 épisodes", quality: "Web 1080p", size: "33.12 GB", link: "https://1fichier.com/?vhlk1wek0d9ar8fy89si", episodesData: [
+                    { ep: 1, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/a66cddf98606ab9babb04136b755534d859282e67a71d4ba" },
+                    { ep: 2, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/477c52a63ed9fdc3a1d826ced23c37ee9bc324a523ca4758" },
+                    { ep: 3, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/7c94c5d68e8226aeb62e49bcecb8a453662084bbdcbb2491" },
+                    { ep: 4, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/2725b624dae6fa3fb314638f050ba403a4d4127101a8884f" },
+                    { ep: 5, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/9470f0a9898fcc6c62b1854e8ec45c711ee533b528dad9ab" },
+                    { ep: 6, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/56c5794d0a9cb99bbd7585e46c11f26078b06148f495bc30" },
+                    { ep: 7, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/d1771899497917a95553e0d5557ac1963ff88d14eb74ec18" },
+                    { ep: 8, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/f12fcbc2bb5e2e1d9648222081bc218498cf9f0eec2abf90" },
+                    { ep: 9, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/679948d688801bb4b30808cd0f30054cf7eaf769cbd93da7" }
+                ] },
+                { season: 5, year: 2026, episodes: "8 épisodes", quality: "Ultra HDLight 4K", size: "17.34 GB", link: "https://1fichier.com/?ezrcq4n9bkl2sh74n6ch&af=4356241", episodesData: [
+                    { ep: 1, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/bcfe8bb40dc2b2d33b8e377ef52f64d926f6c6a8c41ec928" },
+                    { ep: 2, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/9ab25f15481070ecaddaf124884fa781d3ec040d71e6d09a" },
+                    { ep: 3, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/2b71a9ba4e16e487cf97d5b36dfa9b27a1baaf7d66af7569" },
+                    { ep: 4, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/1c1566a3a3d4e938730c1bee4951d60d71448e892f374326" },
+                    { ep: 5, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/c737f435d3fecce19a47a8cc08ccff2bb7f4439d287f8404" },
+                    { ep: 6, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/e204392d772af5bf2c04248284702710b73ac2703a0272f2" },
+                    { ep: 7, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/6e1a4f7dd00c40169e5257bf1a929858a82c95bd55a7e0c2" },
+                    { ep: 8, link: "indisponible.com", streamLink: "https://tfx05.lol/watch/serie/4ec2baf6af8a98ac73baff09dc37a5c58a1860c42244cf20" }
+                ] }
             ]},
             { id: 38, title: "The Last of Us", type: "serie", year: 2025, genres: ["Action", "Horreur", "Drame"], poster: "TheLastOfUs.png", description: "Dans des États-Unis ravagés par l'épidémie du Cordyceps, Ellie et Joel traversent un voyage bouleversant entre survie brutale et liens humains profonds.", duration: "2 Saisons", language: "MULTI", quality: "Web 1080p (x265)", size: "16.64 GB", dateAdded: "2025-04-15", featured: true, seasons: [
                 { season: 1, year: 2023, episodes: "9 épisodes", quality: "Web 1080p (x265)", size: "10.59 GB", link: "https://1fichier.com/?5iw5yvoahsum2otpc92v&af=62851" },
@@ -520,7 +615,7 @@
 
         ];
 
-        const MOVIES_VERSION = '2026-07-56-v6';
+        const MOVIES_VERSION = '2026-07-31-v8';
         let moviesData;
         if (localStorage.getItem('zenflix_movies_version') !== MOVIES_VERSION) {
             moviesData = defaultMovies;
@@ -1008,7 +1103,11 @@
                 <div class="seasons-container">
                     <h3 class="seasons-header-title"><i class="fas fa-list-ul" style="color:var(--accent);"></i> Saisons disponibles (${m.seasons.length})</h3>
                     <div class="seasons-list">
-                        ${m.seasons.map((s, idx) => `
+                        ${m.seasons.map((s, idx) => {
+                            const epStr = s.episodes || '';
+                            const epMatch = epStr.match(/(\d+)/);
+                            const epCount = epMatch ? parseInt(epMatch[1]) : 0;
+                            return `
                         <div class="season-card" onclick="toggleSeasonExpand(${m.id}, ${idx})">
                             <div class="season-card-header">
                                 <div class="season-card-title-wrap">
@@ -1029,11 +1128,42 @@
                                     <div><span>Année :</span> <strong>${s.year}</strong></div>
                                     <div><span>Épisodes :</span> <strong>${esc(s.episodes)}</strong></div>
                                 </div>
-                                <button class="reveal-btn season-download-full" onclick="revealLink(${m.id}, '${s.link || '#'}')">
+                                <button class="reveal-btn season-download-full" onclick="revealLink(${m.id}, '${(s.link || '#').replace(/'/g,"\\'")}')">
                                     <i class="fas fa-download"></i> Télécharger la Saison ${s.season}
                                 </button>
+                                <div class="episodes-section" style="margin-top:1.2rem;">
+                                    <h4 style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:0.8rem;"><i class="fas fa-tv" style="color:var(--accent);margin-right:0.4rem;"></i>Épisodes de la saison ${s.season}</h4>
+                                    <div class="episodes-grid">
+                                        ${Array.from({length: Math.max(epCount, 1)}, (_, i) => i + 1).map(epNum => {
+                                            // ===== Liens spécifiques à l'épisode (priorité : épisode → saison → série) =====
+                                            const epData = ((s.episodesData || s.episodeData) || []).find(e => String(e.ep) === String(epNum)) || {};
+                                            const dlLink = (epData.link || s.link || m.link || '').replace(/'/g, "\\'");
+                                            const stLink = epData.streamLink || s.streamLink || m.streamLink || '';
+                                            return `
+                                            <div class="episode-card" onclick="event.stopPropagation(); toggleEpisodeExpand(${m.id}, ${idx}, ${epNum})">
+                                                <div class="episode-header">
+                                                    <span class="episode-num-badge">E${epNum}</span>
+                                                    <span class="episode-label">Épisode ${epNum}</span>
+                                                    ${stLink ? '<span class="episode-stream-tag" title="Disponible en streaming"><i class="fas fa-play"></i> Streaming</span>' : ''}
+                                                    <span class="episode-icon" id="epIcon_${m.id}_${idx}_${epNum}"><i class="fas fa-chevron-down"></i></span>
+                                                </div>
+                                                <div class="episode-body" id="epBody_${m.id}_${idx}_${epNum}" style="display:none;" onclick="event.stopPropagation();">
+                                                    <div class="episode-actions">
+                                                        <button class="ep-btn ep-btn-download" onclick="revealLink(${m.id}, '${dlLink}')">
+                                                            <i class="fas fa-download"></i> Télécharger le film
+                                                        </button>
+                                                        <button class="ep-btn ep-btn-stream" onclick="streamSeries(${m.id}, ${s.season}, ${epNum})">
+                                                            <i class="fas fa-play"></i> Regarder en streaming
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                                        }).join('')}
+                                    </div>
+                                </div>
                             </div>
-                        </div>`).join('')}
+                        </div>`;
+                        }).join('')}
                     </div>
                 </div>`;
             } else {
@@ -1059,6 +1189,17 @@
             }
         }
 
+        function toggleEpisodeExpand(movieId, seasonIdx, epNum) {
+            const body = document.getElementById(`epBody_${movieId}_${seasonIdx}_${epNum}`);
+            const card = body?.closest('.episode-card');
+            if (body && card) {
+                const isHidden = body.style.display === 'none';
+                body.style.display = isHidden ? 'block' : 'none';
+                card.classList.toggle('expanded', isHidden);
+                // L'icône pivote automatiquement via le CSS (.episode-card.expanded .episode-icon)
+            }
+        }
+
         function revealLink(id, customLink = null) {
             if (!currentUser) {
                 showToast("Connexion requise pour télécharger ce contenu.", "info");
@@ -1066,11 +1207,13 @@
                 return;
             }
             const m = moviesData.find(x => x.id === id);
-            const targetLink = customLink || m?.link;
-            if (targetLink && targetLink !== '#') {
-                window.open(targetLink, '_blank');
-            } else {
+            const targetLink = (customLink || m?.link || '').trim();
+            // Placeholders = lien pas encore disponible (ex: "indisponible.com", "#", vide...)
+            const isPlaceholder = !targetLink || targetLink === '#' || /indispon/i.test(targetLink) || /non disponible/i.test(targetLink);
+            if (isPlaceholder) {
                 showToast("Le lien sera disponible très bientôt !", "info");
+            } else {
+                window.open(targetLink, '_blank');
             }
         }
 
@@ -1121,6 +1264,62 @@
                 showToast("Lien de streaming non disponible.", "info");
             }
         }
+
+        function streamSeries(id, seasonNum, epNum) {
+            if (!currentUser) {
+                showToast("Connexion requise pour streamer ce contenu.", "info");
+                openAuthModal();
+                return;
+            }
+            const m = moviesData.find(x => x.id === id);
+            if (!m) { showToast("Contenu non trouvé.", "info"); return; }
+
+            const seasonIdx = (m.seasons || []).findIndex(s => s.season === seasonNum);
+            const seasonData = seasonIdx > -1 ? m.seasons[seasonIdx] : null;
+
+            // ===== Résolution du lien de streaming (priorité : épisode → saison → série) =====
+            const epData = seasonData && ((seasonData.episodesData || seasonData.episodeData) || []).find(e => String(e.ep) === String(epNum));
+            const streamLink = (epData && epData.streamLink) || (seasonData && seasonData.streamLink) || m.streamLink || '';
+
+            if (!streamLink) {
+                showToast("Lien de streaming non disponible pour cet épisode.", "info");
+                return;
+            }
+
+            const page = document.getElementById('streamPage');
+            const iframe = document.getElementById('streamIframe');
+            document.getElementById('streamTitle').textContent = (m.title || '') + ' - S' + seasonNum + 'E' + epNum;
+
+            console.log('[ZenFlix] Series streaming:', m.title, 'S'+seasonNum+'E'+epNum, streamLink);
+
+            iframe.src = '';
+            iframe.src = streamLink;
+
+            page.classList.add('active');
+            document.querySelector('.navbar').style.display = 'none';
+            document.querySelector('.footer').style.display = 'none';
+            document.body.style.overflow = 'hidden';
+            page.classList.add('show-ui');
+            document.getElementById('streamLoading').classList.add('active');
+            document.getElementById('streamShowBtn').classList.remove('active');
+
+            setTimeout(() => {
+                document.getElementById('streamLoading').classList.remove('active');
+            }, 3000);
+
+            resetStreamUITimer();
+
+            page.onmousemove = function() {
+                page.classList.add('show-ui');
+                document.getElementById('streamShowBtn').classList.remove('active');
+                resetStreamUITimer();
+            };
+
+            showToast("Chargement du streaming série...", "success");
+        }
+
+        // Timer de masquage automatique de l'UI du player streaming
+        let ctrlTimer = null;
 
         function resetStreamUITimer() {
             clearTimeout(ctrlTimer);
@@ -1201,6 +1400,18 @@
             el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucun résultat.</p>';
         }
 
+        // Une série est "disponible en streaming" si un streamLink existe
+        // au niveau de la série, d'une saison OU d'un épisode (episodesData).
+        function hasSerieStreaming(m) {
+            if (m.streamLink) return true;
+            if (!m.seasons) return false;
+            return m.seasons.some(s => {
+                if (s.streamLink) return true;
+                const eps = s.episodesData || s.episodeData || []; // tolère l'ancienne coquille "episodeData"
+                return eps.some(e => e.streamLink);
+            });
+        }
+
         function filterSeries(filter, event) {
             document.querySelectorAll('#seriesPage .filter-btn').forEach(b => b.classList.remove('active'));
             event?.target?.classList.add('active');
@@ -1208,7 +1419,7 @@
             const series = moviesData.filter(m => m.type === 'serie');
             if (filter === 'all') { displaySeriesList(); return; }
             if (filter === 'streaming') {
-                const results = series.filter(m => m.streamLink || (m.seasons && m.seasons.some(s => s.streamLink)));
+                const results = series.filter(hasSerieStreaming);
                 el.innerHTML = results.length > 0 ? results.map(renderFilmCard).join('') : '<p class="no-films">Aucune série disponible en streaming.</p>';
                 return;
             }
@@ -1343,6 +1554,8 @@
         window.renderHomePage = renderHomePage;
         window.toggleMobileMenu = toggleMobileMenu;
         window.toggleSeasonExpand = toggleSeasonExpand;
+        window.toggleEpisodeExpand = toggleEpisodeExpand;
+        window.streamSeries = streamSeries;
         window.showToast = showToast;
         window.displaySeriesList = displaySeriesList;
         window.likeSug = likeSug;
@@ -1415,5 +1628,5 @@
             renderHomePage();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1691cf77bfdd0bf',t:'MTc4MzI4MzI3NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a178dc230bb3d108',t:'MTc4MzQ0ODM5Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a18142944aeffa77',t:'MTc4MzUzNjQ3NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2376bf6badc3a77',t:'MTc4NTQ0NjU3Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1691cf77bfdd0bf',t:'MTc4MzI4MzI3NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a178dc230bb3d108',t:'MTc4MzQ0ODM5Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a18142944aeffa77',t:'MTc4MzUzNjQ3NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2376bf6badc3a77',t:'MTc4NTQ0NjU3Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a23ec78758c27f64',t:'MTc4NTUyMzcyOA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a23f0b7cee429eff',t:'MTc4NTUyNjUxMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
